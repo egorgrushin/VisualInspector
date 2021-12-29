@@ -13,15 +13,10 @@ namespace Foundation
         private SynchronizationContext creationSyncContext;
         private Thread creationThread;
 
-        public CrossthreadObservableCollection()
+        public CrossthreadObservableCollection(SynchronizationContext creationSyncContext, Thread currentThread)
         {
-            InstallSynchronizationContext();
-        }
-
-        private void InstallSynchronizationContext()
-        {
-            this.creationSyncContext = SynchronizationContext.Current;
-            this.creationThread = Thread.CurrentThread; 
+            this.creationSyncContext = creationSyncContext;
+            this.creationThread = currentThread; 
         }
 
         protected override void OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs args)
@@ -36,7 +31,7 @@ namespace Foundation
             }
             else
             {
-                this.creationSyncContext.Send(new SendOrPostCallback(delegate
+                this.creationSyncContext.Post(new SendOrPostCallback(delegate
                     {
                         this.OnCollectionChangedInternal(args);
                     }), null);

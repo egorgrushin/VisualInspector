@@ -45,6 +45,7 @@
     <Compile Include="ConverterBase.cs" />
     <Compile Include="CrossthreadObservableCollection.cs" />
     <Compile Include="ItemPropertyChangedEventArgs.cs" />
+    <Compile Include="MultiParameter.cs" />
     <Compile Include="ObservableNotifiableCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyNameProvider.cs" />

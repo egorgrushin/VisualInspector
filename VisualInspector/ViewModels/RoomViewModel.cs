@@ -9,14 +9,14 @@ namespace VisualInspector.ViewModels
 {
     public class RoomViewModel : ViewModel
     {
-        public CrossthreadObservableCollection<EventViewModel> Events
+        public ObservableNotifiableCollection<EventViewModel> Events
         {
             get { return Get(() => Events); }
             set { Set(() => Events, value); }
         }
         public RoomViewModel()
         {
-            Events = new CrossthreadObservableCollection<EventViewModel>();
+            Events = new ObservableNotifiableCollection<EventViewModel>();
         }
     }
 }
