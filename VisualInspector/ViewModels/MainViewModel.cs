@@ -46,8 +46,8 @@ namespace VisualInspector.ViewModels
             };
             visualFactory = new EventVisualFactory(pens, brushes);
             var thread = new Thread(InitRoomsFromOtherThread);
-            thread.Start(20);
-            //InitRooms(20);
+            //thread.Start(20);
+            InitRooms(20);
             FillRooms();
         }
 
