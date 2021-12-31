@@ -24,7 +24,7 @@ namespace VisualInspector.Infrastructure
             using (var context = canvas.RenderOpen())
             {
                 Brush brush = brushes[viewModel.GetWarningLevel().ToString()];
-                
+
                 context.DrawRectangle(Brushes.Black, null, rect);
                 var rect2 = new Rect(new Point(rect.Location.X + 1, rect.Location.Y + 1),
                     new Size(rect.Size.Width - 2, rect.Size.Height - 2));
@@ -35,16 +35,17 @@ namespace VisualInspector.Infrastructure
         }
 
 
-        public DrawingVisual Change(EventViewModel viewModel, DrawingVisual oldVisual, Rect rect)
+        public DrawingVisual Change(EventViewModel viewModel, DrawingVisual canvas)
         {
-            using (var context = oldVisual.RenderOpen())
+            using (var context = canvas.RenderOpen())
             {
-                context.DrawRectangle(Brushes.Black, null, rect);
+				var rect = canvas.ContentBounds;
+				context.DrawRectangle(Brushes.Black, null, canvas.ContentBounds);
                 var rect2 = new Rect(new Point(rect.Location.X + 1, rect.Location.Y + 1),
                     new Size(rect.Size.Width - 2, rect.Size.Height - 2));
                 context.DrawRectangle(Brushes.Blue, null, rect2);
             }
-            return oldVisual;
+            return canvas;
         }
     }
 }

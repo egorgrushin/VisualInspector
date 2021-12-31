@@ -11,6 +11,6 @@ namespace VisualInspector.Infrastructure
     public interface IVisualFactory<T> where T : ViewModel
     {
         DrawingVisual Create(T viewModel, DrawingVisual canvas, Rect rect);
-        DrawingVisual Change(T viewModel, DrawingVisual oldVisual, Rect rect);
+        DrawingVisual Change(T viewModel, DrawingVisual canvas);
     }
 }

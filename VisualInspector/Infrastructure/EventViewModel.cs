@@ -32,9 +32,9 @@ namespace VisualInspector.Infrastructure
         {
             return eventModel.WarningLevel;
         }
-        public DrawingVisual ChangeVisual(DrawingVisual oldVisual, Rect rect)
+        public DrawingVisual ChangeVisual(DrawingVisual oldVisual)
         {
-            return visualFactory.Change(this, oldVisual, rect);
+            return visualFactory.Change(this, oldVisual);
         }
     }
 }

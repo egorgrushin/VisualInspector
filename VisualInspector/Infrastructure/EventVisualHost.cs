@@ -26,30 +26,69 @@ namespace VisualInspector.Infrastructure
             new PropertyMetadata(OnItemSourceChanged));
 
 
-
-
         private Size itemSize;
         private int gapWidth;
 
+		#region Selection features interface
 
-        public EventVisualHost()
-        {
-            itemSize = new Size(8, 8);
-            gapWidth = 2;
-            Height = itemSize.Height + gapWidth;
-            MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
-        }
+		private List<DrawingVisual> selectedVisuals;
+		public List<EventViewModel> selectedItems
+		{
+			get
+			{
+				var resultList = new List<EventViewModel>();
+				foreach(var visual in selectedVisuals)
+				{
+					resultList.Add(visualDictionary.FirstOrDefault((x) => x.Value == visual).Key);
+				}
 
+				return resultList;
+			}
+		}
+		public List<int> selectedIndecies
+		{
+			get
+			{
+				var resultList = new List<int>();
+				foreach(var visual in selectedVisuals)
+				{
+					resultList.Add(visualIndexator.FirstOrDefault(x => x.Value == visual).Key);
+				}
+
+				return resultList;
+			}
+		}
+
+		#endregion
+
+		public EventVisualHost()
+		{
+			selectedVisuals = new List<DrawingVisual>();
+
+			itemSize = new Size(8, 8);
+			gapWidth = 2;
+			Height = itemSize.Height + gapWidth;
+			MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
+		}
         void EventVisualHost_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var visual = GetVisual(e.GetPosition(this));
+			var visual = GetVisual(e.GetPosition(this));
+			
+			if(selectedVisuals.Contains(visual))
+			{
+				selectedVisuals.Remove(visual);
+			}
+			else
+			{
+				selectedVisuals.Add(visual); 
+			}
 
             var model = visualDictionary.FirstOrDefault((x) => x.Value == visual).Key;
             var index = visualIndexator.FirstOrDefault(x => x.Value == visual).Key;
 
             var rect = new Rect(index * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
 
-            model.ChangeVisual(visual, rect);
+            model.ChangeVisual(visual);
         }
 
 
@@ -134,7 +173,7 @@ namespace VisualInspector.Infrastructure
             var visual = FindVisualForModel(model);
             var index = visualIndexator.FirstOrDefault(x => x.Value == visual).Key;
             var rect = new Rect(index * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
-            model.ChangeVisual(visual, rect);
+            model.ChangeVisual(visual);
         }
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
@@ -187,6 +226,10 @@ namespace VisualInspector.Infrastructure
                         visualIndexator.Add(i, visual);
                         var rect = new Rect(i * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
                         visual = CreateVisualFromModel(model, visual, rect);
+						if(selectedVisuals.Contains(visual))
+						{
+							model.ChangeVisual(visual);
+						}
                         i++;
                     }
                 }
