@@ -12,7 +12,7 @@
         <ListBox ItemsSource="{Binding Rooms, Mode=TwoWay}" Margin="10">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <infr:EventVisualHost ItemsSource="{Binding Events, Mode=TwoWay}"/>
+					<infr:EventVisualHost ItemsSource="{Binding Events, Mode=TwoWay}" SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
             <ListBox.ItemContainerStyle>

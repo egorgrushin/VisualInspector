@@ -26,69 +26,70 @@ namespace VisualInspector.Infrastructure
             new PropertyMetadata(OnItemSourceChanged));
 
 
+
+		public EventViewModel SelectedItem	
+		{
+			get	{ return (EventViewModel)GetValue(SelectedItemProperty); }
+			set	{ SetValue(SelectedItemProperty, value);}
+		}
+
+		// Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty SelectedItemProperty = 
+			DependencyProperty.Register("SelectedItem", typeof(EventViewModel), typeof(EventVisualHost), new FrameworkPropertyMetadata(null, OnSelectedItemChanged));
+
+		private static void OnSelectedItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			(d as EventVisualHost).OnSelectedItemChanged(e);
+		}
+
+		private void OnSelectedItemChanged(DependencyPropertyChangedEventArgs e)
+		{
+			var oldModel = e.OldValue as EventViewModel;
+			if(SelectedItem == null)
+			{
+				oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
+			}
+			else
+			{
+				if(oldModel != null)
+				{
+					oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
+				}
+				SelectedItem.ToggleVisual(visualDictionary[(SelectedItem)], true);
+			}
+		}
+
+
+		
+
+
         private Size itemSize;
         private int gapWidth;
 
-		#region Selection features interface
-
-		private List<DrawingVisual> selectedVisuals;
-		public List<EventViewModel> selectedItems
-		{
-			get
-			{
-				var resultList = new List<EventViewModel>();
-				foreach(var visual in selectedVisuals)
-				{
-					resultList.Add(visualDictionary.FirstOrDefault((x) => x.Value == visual).Key);
-				}
-
-				return resultList;
-			}
-		}
-		public List<int> selectedIndecies
-		{
-			get
-			{
-				var resultList = new List<int>();
-				foreach(var visual in selectedVisuals)
-				{
-					resultList.Add(visualIndexator.FirstOrDefault(x => x.Value == visual).Key);
-				}
-
-				return resultList;
-			}
-		}
-
-		#endregion
-
 		public EventVisualHost()
 		{
-			selectedVisuals = new List<DrawingVisual>();
-
 			itemSize = new Size(16, 16);
 			gapWidth = 1;
 			Height = itemSize.Height + gapWidth;
 			MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
 		}
+
+		/// <summary>
+		/// Selection realisation
+		/// </summary>
         void EventVisualHost_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
 			var visual = GetVisual(e.GetPosition(this));
-			
-			if(selectedVisuals.Contains(visual))
+            var model = visualDictionary.FirstOrDefault((x) => x.Value == visual).Key;
+
+			if(SelectedItem != null && SelectedItem == model)
 			{
-				selectedVisuals.Remove(visual);
+				SelectedItem = null;
 			}
 			else
 			{
-				selectedVisuals.Add(visual); 
+				SelectedItem = model;
 			}
-
-            var model = visualDictionary.FirstOrDefault((x) => x.Value == visual).Key;
-            var index = visualIndexator.FirstOrDefault(x => x.Value == visual).Key;
-
-            var rect = new Rect(index * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
-
-            model.ChangeVisual(visual);
         }
 
 
@@ -173,7 +174,7 @@ namespace VisualInspector.Infrastructure
             var visual = FindVisualForModel(model);
             var index = visualIndexator.FirstOrDefault(x => x.Value == visual).Key;
             var rect = new Rect(index * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
-            model.ChangeVisual(visual);
+            model.ToggleVisual(visual, true);
         }
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
@@ -226,9 +227,9 @@ namespace VisualInspector.Infrastructure
                         visualIndexator.Add(i, visual);
                         var rect = new Rect(i * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
                         visual = CreateVisualFromModel(model, visual, rect);
-						if(selectedVisuals.Contains(visual))
+						if(SelectedItem == model)
 						{
-							model.ChangeVisual(visual);
+							model.ToggleVisual(visual, true);
 						}
                         i++;
                     }

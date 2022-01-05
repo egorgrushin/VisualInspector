@@ -25,18 +25,26 @@ namespace VisualInspector.ViewModels
             set { Set(() => Rooms, value); }
         }
 
-
         public Event CurrentEvent
         {
             get { return Get(() => CurrentEvent); }
             set { Set(() => CurrentEvent, value); }
         }
 
+		public EventViewModel SelectedEvent
+		{
+			get	{ return Get(() => SelectedEvent); }
+			set	{ Set(() => SelectedEvent, value); }
+		}
+
         public MainViewModel()
         {
             rd = new Random();
             Rooms = new ObservableNotifiableCollection<RoomViewModel>();
             EnumCol = Enum.GetNames(typeof(WarningLevels));
+			
+			SelectedEvent = null;
+
             CurrentEvent = new Event() { WarningLevel = WarningLevels.Normal };
             var pens = new Dictionary<string, Pen>() { { "Black", new Pen(Brushes.Black, 2) } };
             var brushes = new Dictionary<string, Brush>()
@@ -46,7 +54,7 @@ namespace VisualInspector.ViewModels
                 { "High", Brushes.Red }
             };
             visualFactory = new EventVisualFactory(pens, brushes);
-            var thread = new Thread(InitRoomsFromOtherThread);
+            //var thread = new Thread(InitRoomsFromOtherThread);
             //thread.Start(20);
             InitRooms(50);
             FillRooms();
@@ -79,9 +87,24 @@ namespace VisualInspector.ViewModels
             for (int i = 0; i < n; i++)
             {
                 var roomViewModel = new RoomViewModel();
+				roomViewModel.SelectionChanged += roomViewModel_SelectionChanged;
                 Rooms.Add(roomViewModel);
             }
         }
+
+		void roomViewModel_SelectionChanged(object sender, EventArgs e)
+		{
+			var currentRoom = sender as RoomViewModel;
+			SelectedEvent = currentRoom.SelectedEvent;
+			foreach(var room in Rooms)
+			{	
+				if(room != currentRoom)
+				{
+					room.SelectedEvent = null;
+				}
+			}
+		}
+
         #region TestMultiThreadInitialization
         private void AddEventInRoom(object state)
         {

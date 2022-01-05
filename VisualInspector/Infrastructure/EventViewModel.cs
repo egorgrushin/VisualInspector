@@ -32,9 +32,21 @@ namespace VisualInspector.Infrastructure
         {
             return eventModel.WarningLevel;
         }
-        public DrawingVisual ChangeVisual(DrawingVisual oldVisual)
+
+		/// <summary>
+		/// Toggle visual for selection(selected or not)
+		/// </summary>
+		/// <param name="oldVisual">Visual to toggle</param>
+		/// <param name="toggleState">true - selected, false - unselected</param>
+		/// <returns>Toggled visual, but it toggling anyway</returns>
+        public DrawingVisual ToggleVisual(DrawingVisual oldVisual, bool toggleState)
         {
-            return visualFactory.Change(this, oldVisual);
+            return visualFactory.Toggle(this, oldVisual, toggleState);
         }
+
+		public override string ToString()
+		{
+			return String.Format("{0}", GetWarningLevel());
+		}
     }
 }

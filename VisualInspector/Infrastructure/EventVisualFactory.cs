@@ -33,9 +33,7 @@ namespace VisualInspector.Infrastructure
             }
             return canvas;
         }
-
-
-        public DrawingVisual Change(EventViewModel viewModel, DrawingVisual canvas)
+        public DrawingVisual Toggle(EventViewModel viewModel, DrawingVisual canvas, bool toggleState)
         {
             using (var context = canvas.RenderOpen())
             {
@@ -43,7 +41,9 @@ namespace VisualInspector.Infrastructure
 				context.DrawRectangle(Brushes.Black, null, canvas.ContentBounds);
                 var rect2 = new Rect(new Point(rect.Location.X + 1, rect.Location.Y + 1),
                     new Size(rect.Size.Width - 2, rect.Size.Height - 2));
-                context.DrawRectangle(Brushes.Blue, null, rect2);
+
+				var brushToToggle = toggleState ? Brushes.Blue : brushes[viewModel.GetWarningLevel().ToString()];
+				context.DrawRectangle(brushToToggle, null, rect2);
             }
             return canvas;
         }
