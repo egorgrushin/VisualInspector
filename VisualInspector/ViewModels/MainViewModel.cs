@@ -19,11 +19,12 @@ namespace VisualInspector.ViewModels
         Random rd;
         public IEnumerable<string> EnumCol { get; set; }
 
-        public CrossthreadObservableCollection<RoomViewModel> Rooms
+        public ObservableNotifiableCollection<RoomViewModel> Rooms
         {
             get { return Get(() => Rooms); }
             set { Set(() => Rooms, value); }
         }
+
 
         public Event CurrentEvent
         {
@@ -34,7 +35,7 @@ namespace VisualInspector.ViewModels
         public MainViewModel()
         {
             rd = new Random();
-            Rooms = new CrossthreadObservableCollection<RoomViewModel>(SynchronizationContext.Current, Thread.CurrentThread);
+            Rooms = new ObservableNotifiableCollection<RoomViewModel>();
             EnumCol = Enum.GetNames(typeof(WarningLevels));
             CurrentEvent = new Event() { WarningLevel = WarningLevels.Normal };
             var pens = new Dictionary<string, Pen>() { { "Black", new Pen(Brushes.Black, 2) } };

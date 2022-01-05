@@ -66,7 +66,7 @@ namespace VisualInspector.Infrastructure
 			selectedVisuals = new List<DrawingVisual>();
 
 			itemSize = new Size(16, 16);
-			gapWidth = 2;
+			gapWidth = 1;
 			Height = itemSize.Height + gapWidth;
 			MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
 		}
