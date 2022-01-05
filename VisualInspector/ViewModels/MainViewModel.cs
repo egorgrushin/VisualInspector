@@ -47,7 +47,7 @@ namespace VisualInspector.ViewModels
             visualFactory = new EventVisualFactory(pens, brushes);
             var thread = new Thread(InitRoomsFromOtherThread);
             //thread.Start(20);
-            InitRooms(20);
+            InitRooms(50);
             FillRooms();
         }
 
@@ -59,7 +59,17 @@ namespace VisualInspector.ViewModels
             for (int i = 0; i < count; i++)
             {
                 var roomViewModel = new RoomViewModel();
+                for (int j = 0; j < 10; j++)
+                {
+                    var newEvent = new Event()
+                    {
+                        WarningLevel =
+                        (WarningLevels)Enum.GetValues(typeof(WarningLevels)).GetValue(rd.Next(Enum.GetValues(typeof(WarningLevels)).Length))
+                    };
+                    roomViewModel.Events.Add(new EventViewModel(newEvent, visualFactory));
+                }
                 Rooms.Add(roomViewModel);
+                Thread.Sleep(200);
             }
         }
         #endregion
@@ -100,7 +110,8 @@ namespace VisualInspector.ViewModels
             var room = parameters.Parameters[0] as RoomViewModel;
             var context = parameters.Parameters[1] as SynchronizationContext;
             var rdG = (int)parameters.Parameters[2];
-            for (int j = 0; j < 10; j++)
+            int n = rd.Next(50, 100);
+            for (int j = 0; j < n; j++)
             {
                 var newEvent = new Event()
                 {

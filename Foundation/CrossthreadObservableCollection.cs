@@ -31,7 +31,7 @@ namespace Foundation
             }
             else
             {
-                this.creationSyncContext.Post(new SendOrPostCallback(delegate
+                this.creationSyncContext.Send(new SendOrPostCallback(delegate
                     {
                         this.OnCollectionChangedInternal(args);
                     }), null);
