@@ -54,6 +54,7 @@
     <Compile Include="Infrastructure\EventVisualFactory.cs" />
     <Compile Include="Infrastructure\EventVisualHost.cs" />
     <Compile Include="Infrastructure\IVisualFactory.cs" />
+    <Compile Include="Infrastructure\ServerPart\TcpServer.cs" />
     <Compile Include="Models\Event.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\RoomViewModel.cs" />

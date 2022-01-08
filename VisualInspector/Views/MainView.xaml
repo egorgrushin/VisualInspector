@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:VisualInspector.Views"
         xmlns:infr="clr-namespace:VisualInspector.Infrastructure"
-        Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen">
+        Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen" Background="AliceBlue">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="200"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <ListBox ItemsSource="{Binding Rooms, Mode=TwoWay}" Margin="10">
@@ -40,7 +41,8 @@
                 </Style>
             </ListBox.ItemContainerStyle>
         </ListBox>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+        <TextBlock Grid.Row="1" Text="{Binding SelectedEvent}" Background="LightGray" Padding="10" Margin="10"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <ComboBox ItemsSource="{Binding EnumCol}" Width="80" SelectedValue="{Binding CurrentEvent.WarningLevel, Mode=TwoWay}"/>
             <Button Content="Add" Command="{Binding AddNewEventCommand}"/>
         </StackPanel>

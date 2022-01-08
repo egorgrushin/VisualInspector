@@ -11,12 +11,25 @@ using System.Windows.Media;
 using System.Threading;
 using System.Diagnostics;
 using System.Windows;
+using VisualInspector.Infrastructure.ServerPart;
 
 namespace VisualInspector.ViewModels
 {
+    enum Sensors
+    {
+        Outside, Inside
+    }
+
+    enum AccessLevels
+    {
+       Without, Guest, Staff, Administator
+    }
     public class MainViewModel : ViewModel
     {
+        #region Properties & fields
         Random rd;
+        private IVisualFactory<EventViewModel> visualFactory;
+        private TcpServer server;
         public IEnumerable<string> EnumCol { get; set; }
 
         public ObservableNotifiableCollection<RoomViewModel> Rooms
@@ -25,27 +38,23 @@ namespace VisualInspector.ViewModels
             set { Set(() => Rooms, value); }
         }
 
-        public Event CurrentEvent
+
+        public EventViewModel SelectedEvent
         {
-            get { return Get(() => CurrentEvent); }
-            set { Set(() => CurrentEvent, value); }
+            get { return Get(() => SelectedEvent); }
+            set { Set(() => SelectedEvent, value); }
         }
 
-		public EventViewModel SelectedEvent
-		{
-			get	{ return Get(() => SelectedEvent); }
-			set	{ Set(() => SelectedEvent, value); }
-		}
+        #endregion
 
+        #region Constructors
         public MainViewModel()
         {
             rd = new Random();
             Rooms = new ObservableNotifiableCollection<RoomViewModel>();
             EnumCol = Enum.GetNames(typeof(WarningLevels));
-			
-			SelectedEvent = null;
 
-            CurrentEvent = new Event() { WarningLevel = WarningLevels.Normal };
+            SelectedEvent = null;
             var pens = new Dictionary<string, Pen>() { { "Black", new Pen(Brushes.Black, 2) } };
             var brushes = new Dictionary<string, Brush>()
             { 
@@ -58,7 +67,9 @@ namespace VisualInspector.ViewModels
             //thread.Start(20);
             InitRooms(50);
             FillRooms();
+            //LaunchServer();
         }
+        #endregion
 
 
         #region TestCrossthreadCollection
@@ -82,28 +93,76 @@ namespace VisualInspector.ViewModels
             }
         }
         #endregion
+
+        #region Server part
+        private void LaunchServer()
+        {
+            server = new TcpServer(SynchronizationContext.Current)
+            {
+                Port = 3010
+            };
+            server.MessageRecieved += server_MessageRecieved;
+            new Thread(server.Start)
+                {
+                    IsBackground = true
+                }.Start();
+            
+            
+        }
+
+        private Event Proceed(string msg)
+        {
+            var data = msg.Split('/');
+            var lockNumber = int.Parse(data[1]);
+            var sensorNumber = int.Parse(data[2]);
+            var accessLevel = int.Parse(data[3]);
+            var roomNumber = int.Parse(data[4]);
+            var newEvent = new Event()
+            {
+                Lock = lockNumber,
+                Sensor = sensorNumber,
+                AccessLevel = accessLevel,
+                Room = roomNumber,
+                DateTime = DateTime.Now
+            };
+            return newEvent;
+        }
+
+        void server_MessageRecieved(object sender, ClientMsgEventArgs e)
+        {
+
+
+            //messagebox.show(
+            //    string.format("lock: {0}\r\nsensor: {1}\r\naccess: {2}\r\nroom: {3}",
+            //    locknumber, sensornumber, accesslevel, roomnumber));
+
+        }
+        #endregion
+
+
         private void InitRooms(int n)
         {
             for (int i = 0; i < n; i++)
             {
                 var roomViewModel = new RoomViewModel();
-				roomViewModel.SelectionChanged += roomViewModel_SelectionChanged;
+                roomViewModel.SelectionChanged += roomViewModel_SelectionChanged;
                 Rooms.Add(roomViewModel);
             }
         }
 
-		void roomViewModel_SelectionChanged(object sender, EventArgs e)
-		{
-			var currentRoom = sender as RoomViewModel;
-			SelectedEvent = currentRoom.SelectedEvent;
-			foreach(var room in Rooms)
-			{	
-				if(room != currentRoom)
-				{
-					room.SelectedEvent = null;
-				}
-			}
-		}
+        void roomViewModel_SelectionChanged(object sender, EventArgs e)
+        {
+            var currentRoom = sender as RoomViewModel;
+            SelectedEvent = currentRoom.SelectedEvent;
+            //MessageBox.Show(SelectedEvent.ToString());
+            foreach (var room in Rooms)
+            {
+                if (room != currentRoom)
+                {
+                    room.SelectedEvent = null;
+                }
+            }
+        }
 
         #region TestMultiThreadInitialization
         private void AddEventInRoom(object state)
@@ -113,7 +172,7 @@ namespace VisualInspector.ViewModels
             var room = parameters.Parameters[0] as RoomViewModel;
             var ev = parameters.Parameters[1] as EventViewModel;
             room.Events.Add(ev);
-            
+
         }
         private void FillRooms()
         {
@@ -137,37 +196,36 @@ namespace VisualInspector.ViewModels
             int n = rd.Next(50, 100);
             for (int j = 0; j < n; j++)
             {
-                var newEvent = new Event()
-                {
-                    WarningLevel =
-                    (WarningLevels)Enum.GetValues(typeof(WarningLevels)).GetValue(rd.Next(Enum.GetValues(typeof(WarningLevels)).Length))
-                };
-                var parameter = new object[] { room, new EventViewModel(newEvent, visualFactory) };
+                var newMsg = GenerateRandomMsg();
+                Proceed(newMsg);
+                var newEvent = Proceed(newMsg);
+                newEvent.WarningLevel = ParseWarningLevel(newEvent);
+                var roomViewModel = Rooms[newEvent.Room];
+                var parameter = new object[] { roomViewModel, new EventViewModel(newEvent, visualFactory) };
                 context.Send(AddEventInRoom, new MultiParameter(parameter));
                 Thread.Sleep(rdG);
             }
         }
 
+        private WarningLevels ParseWarningLevel(Event newEvent)
+        {
+            return (WarningLevels)Enum.GetValues(typeof(WarningLevels)).GetValue(rd.Next(Enum.GetValues(typeof(WarningLevels)).GetLength(0)));
+        }
+
+        private string GenerateRandomMsg()
+        {
+            var lockNumber = rd.Next(Rooms.Count);
+            var sensorNumber = (int)Enum.GetValues(typeof(Sensors)).GetValue(rd.Next(Enum.GetValues(typeof(Sensors)).GetLength(0)));
+            var accessLevel = sensorNumber == 0 ?
+                (int)Enum.GetValues(typeof(AccessLevels)).GetValue(rd.Next(Enum.GetValues(typeof(AccessLevels)).GetLength(0))) : 1;
+            var cardNumber = rd.Next(Rooms.Count);
+            return string.Format(@"msg/{0}/{1}/{2}/{3}/end",
+                lockNumber, sensorNumber, accessLevel, cardNumber);
+        }
+
 
         #endregion
 
-        private ICommand addNewEventCommand;
-        private IVisualFactory<EventViewModel> visualFactory;
 
-        public ICommand AddNewEventCommand
-        {
-            get
-            {
-                if (addNewEventCommand == null)
-                    addNewEventCommand = new RelayCommand(AddNewEvent);
-                return addNewEventCommand;
-            }
-        }
-
-        private void AddNewEvent(object obj)
-        {
-            //Events.Add(new EventViewModel(CurrentEvent, visualFactory));
-            CurrentEvent = new Event() { WarningLevel = WarningLevels.Normal };
-        }
     }
 }

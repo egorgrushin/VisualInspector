@@ -16,6 +16,10 @@ namespace VisualInspector.Models
 
         public WarningLevels WarningLevel { get; set; }
 
-
+        public int Lock { get; set; }
+        public int Sensor { get; set; }
+        public int Room { get; set; }
+        public DateTime DateTime { get; set; }
+        public int AccessLevel { get; set; }
     }
 }

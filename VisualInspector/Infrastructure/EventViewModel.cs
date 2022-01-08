@@ -33,20 +33,26 @@ namespace VisualInspector.Infrastructure
             return eventModel.WarningLevel;
         }
 
-		/// <summary>
-		/// Toggle visual for selection(selected or not)
-		/// </summary>
-		/// <param name="oldVisual">Visual to toggle</param>
-		/// <param name="toggleState">true - selected, false - unselected</param>
-		/// <returns>Toggled visual, but it toggling anyway</returns>
+        /// <summary>
+        /// Toggle visual for selection(selected or not)
+        /// </summary>
+        /// <param name="oldVisual">Visual to toggle</param>
+        /// <param name="toggleState">true - selected, false - unselected</param>
+        /// <returns>Toggled visual, but it toggling anyway</returns>
         public DrawingVisual ToggleVisual(DrawingVisual oldVisual, bool toggleState)
         {
             return visualFactory.Toggle(this, oldVisual, toggleState);
         }
 
-		public override string ToString()
-		{
-			return String.Format("{0}", GetWarningLevel());
-		}
+        public override string ToString()
+        {
+            return string.Format("Warning: {0}\r\nLock: {1}\r\nSensor: {2}\r\nAccess: {3}\r\nRoom: {4}\r\nDateTime: {5}",
+                eventModel.WarningLevel,
+                eventModel.Lock,
+                eventModel.Sensor, 
+                eventModel.AccessLevel,
+                eventModel.Room, 
+                string.Format("{0:dd.MM.yyyy hh:mm:ss}", eventModel.DateTime));
+        }
     }
 }
