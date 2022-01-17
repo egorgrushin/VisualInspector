@@ -22,7 +22,7 @@ namespace VisualInspector.ViewModels
 
     enum AccessLevels
     {
-       Without, Guest, Staff, Administator
+        Without, Guest, Staff, Administator
     }
     public class MainViewModel : ViewModel
     {
@@ -58,9 +58,9 @@ namespace VisualInspector.ViewModels
             var pens = new Dictionary<string, Pen>() { { "Black", new Pen(Brushes.Black, 2) } };
             var brushes = new Dictionary<string, Brush>()
             { 
-                { "Normal", Brushes.LimeGreen},
-                { "Middle", Brushes.Yellow },
-                { "High", Brushes.Red }
+                { "Normal", new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF46446A"))},
+                { "Middle", new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE3CB7B"))},
+                { "High",  new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF831818"))}
             };
             visualFactory = new EventVisualFactory(pens, brushes);
             //var thread = new Thread(InitRoomsFromOtherThread);
@@ -106,8 +106,8 @@ namespace VisualInspector.ViewModels
                 {
                     IsBackground = true
                 }.Start();
-            
-            
+
+
         }
 
         private Event Proceed(string msg)
@@ -209,7 +209,15 @@ namespace VisualInspector.ViewModels
 
         private WarningLevels ParseWarningLevel(Event newEvent)
         {
-            return (WarningLevels)Enum.GetValues(typeof(WarningLevels)).GetValue(rd.Next(Enum.GetValues(typeof(WarningLevels)).GetLength(0)));
+            WarningLevels result = WarningLevels.Normal;
+            var toss = rd.Next(201);
+
+            if (toss == 200)
+                result = WarningLevels.High;
+            else if (toss >= 186)
+                result = WarningLevels.Middle;
+
+            return result;
         }
 
         private string GenerateRandomMsg()
