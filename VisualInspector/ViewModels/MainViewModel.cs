@@ -15,12 +15,12 @@ using VisualInspector.Infrastructure.ServerPart;
 
 namespace VisualInspector.ViewModels
 {
-    enum Sensors
+    public enum Sensors
     {
         Outside, Inside
     }
 
-    enum AccessLevels
+    public enum AccessLevels
     {
         Without, Guest, Staff, Administator
     }
@@ -30,6 +30,7 @@ namespace VisualInspector.ViewModels
         Random rd;
         private IVisualFactory<EventViewModel> visualFactory;
         private TcpServer server;
+        private bool selectionLock;
         public IEnumerable<string> EnumCol { get; set; }
 
         public ObservableNotifiableCollection<RoomViewModel> Rooms
@@ -58,9 +59,9 @@ namespace VisualInspector.ViewModels
             var pens = new Dictionary<string, Pen>() { { "Black", new Pen(Brushes.Black, 2) } };
             var brushes = new Dictionary<string, Brush>()
             { 
-                { "Normal", new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF46446A"))},
-                { "Middle", new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE3CB7B"))},
-                { "High",  new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF831818"))}
+                { "Normal", new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFf1ee93"))},
+                { "Middle", new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFfe8508"))},
+                { "High",  new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFf00601"))}
             };
             visualFactory = new EventVisualFactory(pens, brushes);
             //var thread = new Thread(InitRoomsFromOtherThread);
@@ -152,15 +153,20 @@ namespace VisualInspector.ViewModels
 
         void roomViewModel_SelectionChanged(object sender, EventArgs e)
         {
-            var currentRoom = sender as RoomViewModel;
-            SelectedEvent = currentRoom.SelectedEvent;
-            //MessageBox.Show(SelectedEvent.ToString());
-            foreach (var room in Rooms)
+            if (!selectionLock)
             {
-                if (room != currentRoom)
+                selectionLock = true;
+                var currentRoom = sender as RoomViewModel;
+                SelectedEvent = currentRoom.SelectedEvent;
+                //MessageBox.Show(SelectedEvent.ToString());
+                foreach (var room in Rooms)
                 {
-                    room.SelectedEvent = null;
+                    if (room != currentRoom)
+                    {
+                        room.SelectedEvent = null;
+                    }
                 }
+                selectionLock = false;
             }
         }
 
@@ -216,7 +222,7 @@ namespace VisualInspector.ViewModels
                 result = WarningLevels.High;
             else if (toss >= 186)
                 result = WarningLevels.Middle;
-
+            //result = (WarningLevels)Enum.GetValues(typeof(WarningLevels)).GetValue(rd.Next(Enum.GetValues(typeof(WarningLevels)).GetLength(0)));
             return result;
         }
 
@@ -224,8 +230,8 @@ namespace VisualInspector.ViewModels
         {
             var lockNumber = rd.Next(Rooms.Count);
             var sensorNumber = (int)Enum.GetValues(typeof(Sensors)).GetValue(rd.Next(Enum.GetValues(typeof(Sensors)).GetLength(0)));
-            var accessLevel = sensorNumber == 0 ?
-                (int)Enum.GetValues(typeof(AccessLevels)).GetValue(rd.Next(Enum.GetValues(typeof(AccessLevels)).GetLength(0))) : 1;
+            var accessLevel = 
+                sensorNumber != 1 ? (int)Enum.GetValues(typeof(AccessLevels)).GetValue(rd.Next(Enum.GetValues(typeof(AccessLevels)).GetLength(0))) : 0;
             var cardNumber = rd.Next(Rooms.Count);
             return string.Format(@"msg/{0}/{1}/{2}/{3}/end",
                 lockNumber, sensorNumber, accessLevel, cardNumber);

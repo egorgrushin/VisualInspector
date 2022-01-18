@@ -21,10 +21,7 @@ namespace VisualInspector.ViewModels
 			get	{ return Get(() => SelectedEvent); }
 			set	{
 					Set(() => SelectedEvent, value);
-					if(value != null)
-					{
-						OnSelectionChanged();
-					}
+					OnSelectionChanged();
 				}
 		}
 

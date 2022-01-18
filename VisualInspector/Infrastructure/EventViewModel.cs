@@ -6,6 +6,7 @@ using Foundation;
 using System.Windows.Media;
 using VisualInspector.Models;
 using System.Windows;
+using VisualInspector.ViewModels;
 
 namespace VisualInspector.Infrastructure
 {
@@ -49,8 +50,8 @@ namespace VisualInspector.Infrastructure
             return string.Format("Warning: {0}\r\nLock: {1}\r\nSensor: {2}\r\nAccess: {3}\r\nRoom: {4}\r\nDateTime: {5}",
                 eventModel.WarningLevel,
                 eventModel.Lock,
-                eventModel.Sensor, 
-                eventModel.AccessLevel,
+                Enum.GetName(typeof(Sensors), eventModel.Sensor),
+                Enum.GetName(typeof(AccessLevels), eventModel.AccessLevel),
                 eventModel.Room, 
                 string.Format("{0:dd.MM.yyyy hh:mm:ss}", eventModel.DateTime));
         }

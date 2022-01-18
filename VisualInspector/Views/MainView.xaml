@@ -3,17 +3,28 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:VisualInspector.Views"
         xmlns:infr="clr-namespace:VisualInspector.Infrastructure"
-        Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen" Background="#C0C7CE">
+        Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="200"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <ListBox ItemsSource="{Binding Rooms, Mode=TwoWay}" Background="#77777E" Margin="10">
+        <StackPanel Orientation="Horizontal">
+            <ToggleButton Content="N"  x:Name="normalFilterToogleButton" IsChecked="True" />
+            <ToggleButton Content="M" x:Name="middleFilterToogleButton" IsChecked="True"/>
+            <ToggleButton Content="H" x:Name="highFilterToogleButton" IsChecked="True"/>
+        </StackPanel>
+        <ListBox Grid.Row="1" ItemsSource="{Binding Rooms, Mode=TwoWay}" Background="#969945" Margin="10">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-					<infr:EventVisualHost ItemsSource="{Binding Events, Mode=TwoWay}" SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"/>
+					<infr:EventVisualHost 
+                        ItemsSource="{Binding Events, Mode=TwoWay}" 
+                        SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
+                        NormalFilter="{Binding IsChecked, ElementName=normalFilterToogleButton, Mode=TwoWay}"
+                        MiddleFilter="{Binding IsChecked, ElementName=middleFilterToogleButton, Mode=TwoWay}"
+                        HighFilter="{Binding IsChecked, ElementName=highFilterToogleButton, Mode=TwoWay}"
+                      />
                 </DataTemplate>
             </ListBox.ItemTemplate>
             <ListBox.ItemContainerStyle>
@@ -41,10 +52,7 @@
                 </Style>
             </ListBox.ItemContainerStyle>
         </ListBox>
-        <TextBlock Grid.Row="1" Text="{Binding SelectedEvent}" Background="#8F969D" Padding="10" Margin="10"/>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <ComboBox ItemsSource="{Binding EnumCol}" Width="80" SelectedValue="{Binding CurrentEvent.WarningLevel, Mode=TwoWay}"/>
-            <Button Content="Add" Command="{Binding AddNewEventCommand}"/>
-        </StackPanel>
+        <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
+        
     </Grid>
 </Window>

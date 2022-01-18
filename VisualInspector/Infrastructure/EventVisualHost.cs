@@ -8,11 +8,19 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
+using VisualInspector.Models;
 
 namespace VisualInspector.Infrastructure
 {
     public class EventVisualHost : VisualHost
     {
+        private Dictionary<WarningLevels, bool> filterDictionary = new Dictionary<WarningLevels, bool>()
+        {
+            {WarningLevels.Normal, true},
+            {WarningLevels.Middle, true},
+            {WarningLevels.High, true}
+        };
+
         public IEnumerable ItemsSource
         {
             get { return (IEnumerable)GetValue(ItemsSourceProperty); }
@@ -32,6 +40,77 @@ namespace VisualInspector.Infrastructure
 			get	{ return (EventViewModel)GetValue(SelectedItemProperty); }
 			set	{ SetValue(SelectedItemProperty, value);}
 		}
+
+
+
+        public bool HighFilter
+        {
+            get { return (bool)GetValue(HighFilterProperty); }
+            set { SetValue(HighFilterProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for HighFilter.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty HighFilterProperty =
+            DependencyProperty.Register("HighFilter", typeof(bool), typeof(EventVisualHost), new PropertyMetadata(true, OnAnyFilterChanged));
+
+
+        public bool MiddleFilter
+        {
+            get { return (bool)GetValue(MiddleFilterProperty); }
+            set { SetValue(MiddleFilterProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MiddleFilter.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MiddleFilterProperty =
+            DependencyProperty.Register("MiddleFilter", typeof(bool), typeof(EventVisualHost), new PropertyMetadata(true, OnAnyFilterChanged));
+
+
+
+
+        public bool NormalFilter
+        {
+            get { return (bool)GetValue(NormalFilterProperty); }
+            set { SetValue(NormalFilterProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for NormalFilter.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty NormalFilterProperty =
+            DependencyProperty.Register("NormalFilter", typeof(bool), typeof(EventVisualHost), new PropertyMetadata(true, OnAnyFilterChanged));
+
+
+        private static void OnAnyFilterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            (d as EventVisualHost).OnAnyFilterChanged(e);
+        }
+
+        private void OnAnyFilterChanged(DependencyPropertyChangedEventArgs e)
+        {
+            switch (e.Property.Name)
+            {
+                case "NormalFilter":
+                    {
+                        filterDictionary[WarningLevels.Normal] = (bool)e.NewValue;
+                        break;
+                    }
+
+                case "MiddleFilter":
+                    {
+                        filterDictionary[WarningLevels.Middle] = (bool)e.NewValue;
+                        break;
+                    }
+
+                case "HighFilter":
+                    {
+                        filterDictionary[WarningLevels.High] = (bool)e.NewValue;
+                        break;
+                    }
+                default:
+                    break;
+            }
+            EraseAllVisuals();
+            Redraw();
+        }
+
 
 		// Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty SelectedItemProperty = 
@@ -77,12 +156,21 @@ namespace VisualInspector.Infrastructure
 		/// <summary>
 		/// Selection realisation
 		/// </summary>
+        /// 
+        protected override HitTestResult HitTestCore(PointHitTestParameters hitTestParameters)
+        {
+            return new PointHitTestResult(this, hitTestParameters.HitPoint);
+        }
         void EventVisualHost_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-			var visual = GetVisual(e.GetPosition(this));
+            var visual = GetVisual(e.GetPosition(this));
+            if (visual == null)
+            {
+                SelectedItem = null;
+                return;
+            }
             var model = visualDictionary.FirstOrDefault((x) => x.Value == visual).Key;
-
-			if(SelectedItem != null && SelectedItem == model)
+            if (SelectedItem != null && SelectedItem == model)
 			{
 				SelectedItem = null;
 			}
@@ -211,7 +299,14 @@ namespace VisualInspector.Infrastructure
             Redraw();
         }
 
-
+        private void EraseAllVisuals()
+        {
+            foreach (var item in visualIndexator.Values)
+            {
+                var dc = item.RenderOpen();
+                dc.Close();
+            }
+        }
         private void Redraw()
         {
             visualIndexator.Clear();
@@ -223,6 +318,9 @@ namespace VisualInspector.Infrastructure
                     var model = item as EventViewModel;
                     if (model != null)
                     {
+                        var type = model.GetWarningLevel();
+                        if (!filterDictionary[type])
+                            continue;
                         var visual = FindVisualForModel(model);
                         visualIndexator.Add(i, visual);
                         var rect = new Rect(i * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
