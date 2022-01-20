@@ -10,48 +10,54 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <ToggleButton Content="N"  x:Name="normalFilterToogleButton" IsChecked="True" />
-            <ToggleButton Content="M" x:Name="middleFilterToogleButton" IsChecked="True"/>
-            <ToggleButton Content="H" x:Name="highFilterToogleButton" IsChecked="True"/>
+        <StackPanel Orientation="Horizontal" Margin="10">
+            <ToggleButton Content="N" Margin="2" x:Name="normalFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forNormalBrush}" IsChecked="True" />
+            <ToggleButton Content="M" Margin="2" x:Name="middleFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forMiddleBrush}" IsChecked="True"/>
+            <ToggleButton Content="H" Margin="2" x:Name="highFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forHighBrush}" IsChecked="True"/>
         </StackPanel>
-        <ListBox Grid.Row="1" ItemsSource="{Binding Rooms, Mode=TwoWay}" Background="#969945" Margin="10">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-					<infr:EventVisualHost 
+        <ScrollViewer Grid.Row="1" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Visible">
+            <StackPanel>
+                <ListBox ItemsSource="{Binding Rooms, Mode=TwoWay}"  Margin="10">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <infr:EventVisualHost 
+                                HorizontalAlignment="Left"
                         ItemsSource="{Binding Events, Mode=TwoWay}" 
                         SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
                         NormalFilter="{Binding IsChecked, ElementName=normalFilterToogleButton, Mode=TwoWay}"
                         MiddleFilter="{Binding IsChecked, ElementName=middleFilterToogleButton, Mode=TwoWay}"
                         HighFilter="{Binding IsChecked, ElementName=highFilterToogleButton, Mode=TwoWay}"
                       />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="{x:Type ListBoxItem}">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                <ContentPresenter/>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <EventTrigger RoutedEvent="Loaded">
-                            <EventTrigger.Actions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation 
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                        <ContentPresenter/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <EventTrigger.Actions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation 
                                             From="0" To="1" Duration="0:0:0.5"
                                             Storyboard.TargetProperty="Opacity"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger.Actions>
-                        </EventTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
-        </ListBox>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+            </StackPanel>
+        </ScrollViewer>
+        
         <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
         
     </Grid>

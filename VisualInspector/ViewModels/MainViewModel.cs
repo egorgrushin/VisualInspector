@@ -59,14 +59,14 @@ namespace VisualInspector.ViewModels
             var pens = new Dictionary<string, Pen>() { { "Black", new Pen(Brushes.Black, 2) } };
             var brushes = new Dictionary<string, Brush>()
             { 
-                { "Normal", new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFf1ee93"))},
-                { "Middle", new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFfe8508"))},
-                { "High",  new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFf00601"))}
+                { "Normal", App.Current.Resources["forNormalBrush"] as SolidColorBrush},
+                { "Middle", App.Current.Resources["forMiddleBrush"] as SolidColorBrush},
+                { "High",  App.Current.Resources["forHighBrush"] as SolidColorBrush}
             };
             visualFactory = new EventVisualFactory(pens, brushes);
             //var thread = new Thread(InitRoomsFromOtherThread);
             //thread.Start(20);
-            InitRooms(50);
+            InitRooms(5);
             FillRooms();
             //LaunchServer();
         }
@@ -199,7 +199,7 @@ namespace VisualInspector.ViewModels
             var room = parameters.Parameters[0] as RoomViewModel;
             var context = parameters.Parameters[1] as SynchronizationContext;
             var rdG = (int)parameters.Parameters[2];
-            int n = rd.Next(50, 100);
+            int n = rd.Next(50, 1000);
             for (int j = 0; j < n; j++)
             {
                 var newMsg = GenerateRandomMsg();
@@ -209,7 +209,8 @@ namespace VisualInspector.ViewModels
                 var roomViewModel = Rooms[newEvent.Room];
                 var parameter = new object[] { roomViewModel, new EventViewModel(newEvent, visualFactory) };
                 context.Send(AddEventInRoom, new MultiParameter(parameter));
-                Thread.Sleep(rdG);
+                //Thread.Sleep(rdG);
+                Thread.Sleep(50);
             }
         }
 

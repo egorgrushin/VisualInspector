@@ -4,6 +4,39 @@
              xmlns:local ="clr-namespace:VisualInspector.Infrastructure"
              StartupUri="Views/MainView.xaml">
     <Application.Resources>
+        <SolidColorBrush Color="#FFf1ee93" x:Key="forNormalBrush"/>
+        <SolidColorBrush Color="#FFfe8508" x:Key="forMiddleBrush"/>
+        <SolidColorBrush Color="#FFf00601" x:Key="forHighBrush"/>
         
+        <Style x:Key="filterToggleButton" TargetType="ToggleButton">
+            <Setter Property="Background" Value="Gray"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Grid>
+                            <Rectangle Stroke="Black" Fill="{TemplateBinding Background}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                            <ContentPresenter/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="true">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Grid>
+                                    <Rectangle Stroke="Black" Fill="{TemplateBinding Background}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                    <Rectangle Stroke="Black" Fill="Black" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.15"/>
+                                    <ContentPresenter/>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

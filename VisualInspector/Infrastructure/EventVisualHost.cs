@@ -148,6 +148,7 @@ namespace VisualInspector.Infrastructure
 		public EventVisualHost()
 		{
 			itemSize = new Size(16, 16);
+           // Width = 1000;
 			gapWidth = 1;
 			Height = itemSize.Height + gapWidth;
 			MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
@@ -275,6 +276,11 @@ namespace VisualInspector.Infrastructure
             Redraw();
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+        }
+
         private void AddVisualChildren(IEnumerable models)
         {
             foreach (var item in models)
@@ -307,6 +313,14 @@ namespace VisualInspector.Infrastructure
                 dc.Close();
             }
         }
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            base.OnRender(drawingContext);
+            drawingContext.DrawRectangle(
+                new SolidColorBrush((Color)ColorConverter.ConvertFromString("#969945")),
+                null,
+                new Rect(0, 0, Width, Height));
+        }
         private void Redraw()
         {
             visualIndexator.Clear();
@@ -332,6 +346,10 @@ namespace VisualInspector.Infrastructure
                         i++;
                     }
                 }
+                if (double.IsNaN(Width))
+                    Width = i * (itemSize.Width + gapWidth);
+                if (Width <= i * (itemSize.Width + gapWidth))
+                    Width += 1000;
             }
         }
 
