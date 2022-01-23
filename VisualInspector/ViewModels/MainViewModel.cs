@@ -66,7 +66,7 @@ namespace VisualInspector.ViewModels
             visualFactory = new EventVisualFactory(pens, brushes);
             //var thread = new Thread(InitRoomsFromOtherThread);
             //thread.Start(20);
-            InitRooms(5);
+            InitRooms(50);
             FillRooms();
             //LaunchServer();
         }
@@ -209,8 +209,8 @@ namespace VisualInspector.ViewModels
                 var roomViewModel = Rooms[newEvent.Room];
                 var parameter = new object[] { roomViewModel, new EventViewModel(newEvent, visualFactory) };
                 context.Send(AddEventInRoom, new MultiParameter(parameter));
-                //Thread.Sleep(rdG);
-                Thread.Sleep(50);
+                Thread.Sleep(rdG);
+                //Thread.Sleep(50);
             }
         }
 

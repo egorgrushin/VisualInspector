@@ -85,28 +85,18 @@ namespace VisualInspector.Infrastructure
 
         private void OnAnyFilterChanged(DependencyPropertyChangedEventArgs e)
         {
-            switch (e.Property.Name)
-            {
-                case "NormalFilter":
-                    {
-                        filterDictionary[WarningLevels.Normal] = (bool)e.NewValue;
-                        break;
-                    }
+			var dict = new Dictionary<string, WarningLevels>{
+				{"NormalFilter", WarningLevels.Normal},
+				{"MiddleFilter", WarningLevels.Middle},
+				{"HighFilter", WarningLevels.High}
+			};
+			var currentWarningLevel = dict[e.Property.Name];
 
-                case "MiddleFilter":
-                    {
-                        filterDictionary[WarningLevels.Middle] = (bool)e.NewValue;
-                        break;
-                    }
-
-                case "HighFilter":
-                    {
-                        filterDictionary[WarningLevels.High] = (bool)e.NewValue;
-                        break;
-                    }
-                default:
-                    break;
-            }
+			filterDictionary[currentWarningLevel] = (bool)e.NewValue;
+			if(SelectedItem != null && SelectedItem.GetWarningLevel() == currentWarningLevel)
+			{
+				SelectedItem = null;
+			}
             EraseAllVisuals();
             Redraw();
         }
@@ -332,11 +322,11 @@ namespace VisualInspector.Infrastructure
                     var model = item as EventViewModel;
                     if (model != null)
                     {
-                        var type = model.GetWarningLevel();
+						var type = model.GetWarningLevel();
                         if (!filterDictionary[type])
-                            continue;
-                        var visual = FindVisualForModel(model);
-                        visualIndexator.Add(i, visual);
+							continue;
+						var visual = FindVisualForModel(model);
+						visualIndexator.Add(i, visual);
                         var rect = new Rect(i * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
                         visual = CreateVisualFromModel(model, visual, rect);
 						if(SelectedItem == model)
