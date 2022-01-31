@@ -15,49 +15,48 @@
             <ToggleButton Content="M" Margin="2" x:Name="middleFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forMiddleBrush}" IsChecked="True"/>
             <ToggleButton Content="H" Margin="2" x:Name="highFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forHighBrush}" IsChecked="True"/>
         </StackPanel>
-        <ScrollViewer Grid.Row="1" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalScrollBarVisibility="Visible">
-            <StackPanel>
-                <ListBox ItemsSource="{Binding Rooms, Mode=TwoWay}"  Margin="10">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <infr:EventVisualHost 
-                                HorizontalAlignment="Left"
+
+        <ListBox Grid.Row="1" ItemsSource="{Binding Rooms, Mode=TwoWay}"  
+                 Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                 Background="#969945">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <infr:EventVisualHost 
+                        HorizontalAlignment="Left"
                         ItemsSource="{Binding Events, Mode=TwoWay}" 
                         SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
                         NormalFilter="{Binding IsChecked, ElementName=normalFilterToogleButton, Mode=TwoWay}"
                         MiddleFilter="{Binding IsChecked, ElementName=middleFilterToogleButton, Mode=TwoWay}"
                         HighFilter="{Binding IsChecked, ElementName=highFilterToogleButton, Mode=TwoWay}"
                       />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListBoxItem}">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                        <ContentPresenter/>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <EventTrigger RoutedEvent="Loaded">
-                                    <EventTrigger.Actions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <DoubleAnimation 
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <ContentPresenter/>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <EventTrigger.Actions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation 
                                             From="0" To="1" Duration="0:0:0.5"
                                             Storyboard.TargetProperty="Opacity"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger.Actions>
-                                </EventTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                </ListBox>
-            </StackPanel>
-        </ScrollViewer>
-        
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>
+                        </EventTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+
         <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
         
     </Grid>
