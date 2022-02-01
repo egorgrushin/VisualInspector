@@ -12,6 +12,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Windows;
 using VisualInspector.Infrastructure.ServerPart;
+using System.Windows.Media.Imaging;
 
 namespace VisualInspector.ViewModels
 {
@@ -43,7 +44,16 @@ namespace VisualInspector.ViewModels
         public EventViewModel SelectedEvent
         {
             get { return Get(() => SelectedEvent); }
-            set { Set(() => SelectedEvent, value); }
+            set { 
+					Set(() => SelectedEvent, value);
+					SelectedFrameList = SelectedEvent == null ? null : SelectedEvent.FramesList;
+				}
+        }
+
+		public List<BitmapImage> SelectedFrameList
+		{
+            get { return Get(() => SelectedFrameList); }
+            set { Set(() => SelectedFrameList, value); }
         }
 
         #endregion
@@ -66,8 +76,11 @@ namespace VisualInspector.ViewModels
             visualFactory = new EventVisualFactory(pens, brushes);
             //var thread = new Thread(InitRoomsFromOtherThread);
             //thread.Start(20);
-            InitRooms(50);
-            FillRooms();
+			InitRooms(50);
+			var thread = new Thread(FillRooms);
+			thread.IsBackground = true;
+			var context = SynchronizationContext.Current;
+			thread.Start(context);
             //LaunchServer();
         }
         #endregion
@@ -118,14 +131,17 @@ namespace VisualInspector.ViewModels
             var sensorNumber = int.Parse(data[2]);
             var accessLevel = int.Parse(data[3]);
             var roomNumber = int.Parse(data[4]);
+			var fileName = "test.mp4";
             var newEvent = new Event()
             {
                 Lock = lockNumber,
                 Sensor = sensorNumber,
                 AccessLevel = accessLevel,
                 Room = roomNumber,
-                DateTime = DateTime.Now
+                DateTime = DateTime.Now,
+				VideoFileName = fileName
             };
+			//MessageBox.Show(newEvent.FramesList.ToString());
             return newEvent;
         }
 
@@ -158,7 +174,6 @@ namespace VisualInspector.ViewModels
                 selectionLock = true;
                 var currentRoom = sender as RoomViewModel;
                 SelectedEvent = currentRoom.SelectedEvent;
-                //MessageBox.Show(SelectedEvent.ToString());
                 foreach (var room in Rooms)
                 {
                     if (room != currentRoom)
@@ -180,39 +195,25 @@ namespace VisualInspector.ViewModels
             room.Events.Add(ev);
 
         }
-        private void FillRooms()
-        {
-            Trace.WriteLine("FillRooms in: " + Thread.CurrentThread.ManagedThreadId);
-            var context = SynchronizationContext.Current;
-            foreach (var item in Rooms)
-            {
-                var parameters = new MultiParameter(new object[] { item, context, rd.Next(100, 3000) });
-                var thread = new Thread(InitEvents);
-                thread.IsBackground = true;
-                thread.Start(parameters);
-            }
-        }
-        private void InitEvents(object state)
-        {
-            Trace.WriteLine("InitEvents in: " + Thread.CurrentThread.ManagedThreadId);
-            var parameters = state as MultiParameter;
-            var room = parameters.Parameters[0] as RoomViewModel;
-            var context = parameters.Parameters[1] as SynchronizationContext;
-            var rdG = (int)parameters.Parameters[2];
-            int n = rd.Next(50, 1000);
-            for (int j = 0; j < n; j++)
-            {
-                var newMsg = GenerateRandomMsg();
-                Proceed(newMsg);
-                var newEvent = Proceed(newMsg);
-                newEvent.WarningLevel = ParseWarningLevel(newEvent);
-                var roomViewModel = Rooms[newEvent.Room];
-                var parameter = new object[] { roomViewModel, new EventViewModel(newEvent, visualFactory) };
-                context.Send(AddEventInRoom, new MultiParameter(parameter));
-                Thread.Sleep(rdG);
-                //Thread.Sleep(50);
-            }
-        }
+        private void FillRooms(object state)
+		{
+			var context = state as SynchronizationContext;
+			while(true)
+			{
+				var roomNumber = rd.Next(Rooms.Count);
+				var room = Rooms[roomNumber];
+				var randomSleep = rd.Next(1, 30);
+				var newMsg = GenerateRandomMsg();
+				var newEvent = Proceed(newMsg);
+				newEvent.WarningLevel = ParseWarningLevel(newEvent);
+				context.Send(delegate 
+					{
+						room.Events.Add(new EventViewModel(newEvent, visualFactory));
+					}, null);
+
+				Thread.Sleep(randomSleep);
+			}
+		}
 
         private WarningLevels ParseWarningLevel(Event newEvent)
         {

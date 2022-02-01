@@ -7,6 +7,7 @@ using System.Windows.Media;
 using VisualInspector.Models;
 using System.Windows;
 using VisualInspector.ViewModels;
+using System.Windows.Media.Imaging;
 
 namespace VisualInspector.Infrastructure
 {
@@ -17,6 +18,14 @@ namespace VisualInspector.Infrastructure
 
         private readonly Event eventModel;
         private readonly IVisualFactory<EventViewModel> visualFactory;
+
+		public List<BitmapImage> FramesList
+		{
+			get
+			{
+				return eventModel.FramesList;
+			}
+		}
 
         public EventViewModel(Event eventModel, IVisualFactory<EventViewModel> visualFactory)
         {

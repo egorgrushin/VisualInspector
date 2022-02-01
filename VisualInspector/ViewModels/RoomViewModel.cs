@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VisualInspector.Infrastructure;
+using System.Windows.Media.Imaging;
 
 namespace VisualInspector.ViewModels
 {
