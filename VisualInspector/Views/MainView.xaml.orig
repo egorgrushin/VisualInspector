@@ -48,14 +48,17 @@
                                         <DoubleAnimation 
                                             From="0" To="1" Duration="0:0:0.5"
                                             Storyboard.TargetProperty="Opacity"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger.Actions>
-                        </EventTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
-        </ListBox>
+<<<<<<< HEAD
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+            </StackPanel>
+        </ScrollViewer>
 
 		<TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
 		<ListBox ItemsSource="{Binding SelectedFrameList}" Grid.Row="2" HorizontalAlignment="Right">
@@ -71,4 +74,18 @@
 			</ListBox.ItemTemplate>
 		</ListBox>
 	</Grid>
+=======
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>
+                        </EventTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+
+        <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
+        
+    </Grid>
+>>>>>>> 9fca2df659a2680fea7bd8904a382e8e4359d173
 </Window>

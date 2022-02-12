@@ -8,7 +8,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="150"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Margin="10">
             <ToggleButton Content="N" Margin="2" x:Name="normalFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forNormalBrush}" IsChecked="True" />
@@ -57,18 +57,7 @@
             </ListBox.ItemContainerStyle>
         </ListBox>
 
-		<TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
-		<ListBox ItemsSource="{Binding SelectedFrameList}" Grid.Row="2" HorizontalAlignment="Right">
-			<ListBox.ItemsPanel>
-				<ItemsPanelTemplate>
-					<StackPanel Orientation="Horizontal"/>
-				</ItemsPanelTemplate>
-			</ListBox.ItemsPanel>
-			<ListBox.ItemTemplate>
-				<DataTemplate>
-					<Image Source="{Binding}" Width="100" Height="100"/>
-				</DataTemplate>
-			</ListBox.ItemTemplate>
-		</ListBox>
-	</Grid>
+        <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
+        
+    </Grid>
 </Window>

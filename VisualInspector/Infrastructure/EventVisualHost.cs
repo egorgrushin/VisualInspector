@@ -306,10 +306,7 @@ namespace VisualInspector.Infrastructure
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
-            drawingContext.DrawRectangle(
-                new SolidColorBrush((Color)ColorConverter.ConvertFromString("#969945")),
-                null,
-                new Rect(0, 0, Width, Height));
+            drawingContext.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, Width + 100, Height + 100));
         }
         private void Redraw()
         {
@@ -327,7 +324,7 @@ namespace VisualInspector.Infrastructure
 							continue;
 						var visual = FindVisualForModel(model);
 						visualIndexator.Add(i, visual);
-                        var rect = new Rect(i * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
+                        var rect = new Rect(gapWidth + i * (itemSize.Width + gapWidth), gapWidth, itemSize.Width, itemSize.Height);
                         visual = CreateVisualFromModel(model, visual, rect);
 						if(SelectedItem == model)
 						{
