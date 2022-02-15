@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AForge.Video.FFMPEG">
-      <HintPath>..\Libraries\AForge.Video.FFMPEG.dll</HintPath>
+      <HintPath>bin\Debug\Libraries\AForge.Video.FFMPEG.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

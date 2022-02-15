@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Controls;
 
 namespace VisualInspector.Infrastructure
 {
     public class VisualHost : FrameworkElement
     {
-        protected VisualCollection visuals;
+        protected List<DrawingVisual> visuals;
 
         protected List<DrawingVisual> hits;
 
@@ -20,7 +21,7 @@ namespace VisualInspector.Infrastructure
 
         public VisualHost()
         {
-            visuals = new VisualCollection(this);
+            visuals = new List<DrawingVisual>();
             visualDictionary = new Dictionary<EventViewModel, DrawingVisual>();
             visualIndexator = new Dictionary<int, DrawingVisual>();
             hits = new List<DrawingVisual>();
@@ -41,14 +42,14 @@ namespace VisualInspector.Infrastructure
         }
 
 
-        public void AddVisual(Visual visual)
+        public void AddVisual(DrawingVisual visual)
         {
             visuals.Add(visual);
-            base.AddVisualChild(visual);
             base.AddLogicalChild(visual);
+            base.AddVisualChild(visual);
         }
 
-        public void RemoveVisual(Visual visual)
+        public void RemoveVisual(DrawingVisual visual)
         {
             visuals.Remove(visual);
             base.RemoveVisualChild(visual);

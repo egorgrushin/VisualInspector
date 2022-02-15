@@ -200,15 +200,16 @@ namespace VisualInspector.ViewModels
 			var context = state as SynchronizationContext;
 			while(true)
 			{
-				var roomNumber = rd.Next(Rooms.Count);
-				var room = Rooms[roomNumber];
 				var randomSleep = rd.Next(1, 30);
 				var newMsg = GenerateRandomMsg();
+
+
 				var newEvent = Proceed(newMsg);
+
 				newEvent.WarningLevel = ParseWarningLevel(newEvent);
 				context.Send(delegate 
 					{
-						room.Events.Add(new EventViewModel(newEvent, visualFactory));
+                        Rooms[newEvent.Room].Events.Add(new EventViewModel(newEvent, visualFactory));
 					}, null);
 
 				Thread.Sleep(randomSleep);

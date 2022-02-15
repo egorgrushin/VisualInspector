@@ -21,6 +21,7 @@ namespace VisualInspector.Infrastructure
             {WarningLevels.High, true}
         };
 
+        private int countOfVisibleItems;
         public IEnumerable ItemsSource
         {
             get { return (IEnumerable)GetValue(ItemsSourceProperty); }
@@ -35,11 +36,11 @@ namespace VisualInspector.Infrastructure
 
 
 
-		public EventViewModel SelectedItem	
-		{
-			get	{ return (EventViewModel)GetValue(SelectedItemProperty); }
-			set	{ SetValue(SelectedItemProperty, value);}
-		}
+        public EventViewModel SelectedItem
+        {
+            get { return (EventViewModel)GetValue(SelectedItemProperty); }
+            set { SetValue(SelectedItemProperty, value); }
+        }
 
 
 
@@ -85,68 +86,100 @@ namespace VisualInspector.Infrastructure
 
         private void OnAnyFilterChanged(DependencyPropertyChangedEventArgs e)
         {
-			var dict = new Dictionary<string, WarningLevels>{
+            var dict = new Dictionary<string, WarningLevels>{
 				{"NormalFilter", WarningLevels.Normal},
 				{"MiddleFilter", WarningLevels.Middle},
 				{"HighFilter", WarningLevels.High}
 			};
-			var currentWarningLevel = dict[e.Property.Name];
+            var currentWarningLevel = dict[e.Property.Name];
 
-			filterDictionary[currentWarningLevel] = (bool)e.NewValue;
-			if(SelectedItem != null && SelectedItem.GetWarningLevel() == currentWarningLevel)
-			{
-				SelectedItem = null;
-			}
-            EraseAllVisuals();
-            Redraw();
+            filterDictionary[currentWarningLevel] = (bool)e.NewValue;
+            if (SelectedItem != null && SelectedItem.GetWarningLevel() == currentWarningLevel)
+            {
+                SelectedItem = null;
+            }
+            if ((bool)e.NewValue != (bool)e.OldValue)
+                ApplyFilters(currentWarningLevel);
+            //EraseAllVisuals();
+            // Redraw();
+        }
+
+        private void ApplyFilters(WarningLevels currentWarningLevel)
+        {
+            countOfVisibleItems = 0;
+            foreach (var item in ItemsSource)
+            {
+                var eventViewModel = item as EventViewModel;
+                if (eventViewModel != null)
+                {
+                    var visual = FindVisualForModel(eventViewModel);
+                    if (filterDictionary[eventViewModel.GetWarningLevel()])
+                    {
+
+                        SetOffset(visual, countOfVisibleItems);
+                        countOfVisibleItems++;
+                        // visual = CreateVisualFromModel(eventViewModel, visual, rect);
+                    }
+                    else
+                    {
+                        SetOffset(visual, -9999);
+                    }
+                }
+            }
+        }
+
+        private void SetOffset(DrawingVisual visual, int offset)
+        {
+            visual.Offset = new Vector(offset * (itemSize.Width + gapWidth), 0);
         }
 
 
-		// Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty SelectedItemProperty = 
-			DependencyProperty.Register("SelectedItem", typeof(EventViewModel), typeof(EventVisualHost), new FrameworkPropertyMetadata(null, OnSelectedItemChanged));
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectedItemProperty =
+            DependencyProperty.Register("SelectedItem", typeof(EventViewModel), typeof(EventVisualHost), new FrameworkPropertyMetadata(null, OnSelectedItemChanged));
 
-		private static void OnSelectedItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			(d as EventVisualHost).OnSelectedItemChanged(e);
-		}
+        private static void OnSelectedItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            (d as EventVisualHost).OnSelectedItemChanged(e);
+        }
 
-		private void OnSelectedItemChanged(DependencyPropertyChangedEventArgs e)
-		{
-			var oldModel = e.OldValue as EventViewModel;
-			if(SelectedItem == null)
-			{
-				oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
-			}
-			else
-			{
-				if(oldModel != null)
-				{
-					oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
-				}
-				SelectedItem.ToggleVisual(visualDictionary[(SelectedItem)], true);
-			}
-		}
+        private void OnSelectedItemChanged(DependencyPropertyChangedEventArgs e)
+        {
+            var oldModel = e.OldValue as EventViewModel;
+            if (SelectedItem == null)
+            {
+                oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
+            }
+            else
+            {
+                if (oldModel != null)
+                {
+                    oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
+                }
+                SelectedItem.ToggleVisual(visualDictionary[(SelectedItem)], true);
+            }
+        }
 
 
-		
+
 
 
         private Size itemSize;
         private int gapWidth;
 
-		public EventVisualHost()
-		{
-			itemSize = new Size(16, 16);
-           // Width = 1000;
-			gapWidth = 1;
-			Height = itemSize.Height + gapWidth;
-			MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
-		}
+        public EventVisualHost()
+        {
+            itemSize = new Size(16, 16);
+            Width = 1000;
+            gapWidth = 1;
+            Height = itemSize.Height + gapWidth;
+            MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
+        }
 
-		/// <summary>
-		/// Selection realisation
-		/// </summary>
+
+        /// <summary>
+        /// Selection realisation
+        /// </summary>
         /// 
         protected override HitTestResult HitTestCore(PointHitTestParameters hitTestParameters)
         {
@@ -162,13 +195,13 @@ namespace VisualInspector.Infrastructure
             }
             var model = visualDictionary.FirstOrDefault((x) => x.Value == visual).Key;
             if (SelectedItem != null && SelectedItem == model)
-			{
-				SelectedItem = null;
-			}
-			else
-			{
-				SelectedItem = model;
-			}
+            {
+                SelectedItem = null;
+            }
+            else
+            {
+                SelectedItem = model;
+            }
         }
 
 
@@ -200,18 +233,18 @@ namespace VisualInspector.Infrastructure
                 Clear();
             }
 
-            Redraw();
         }
 
         private void Initialize()
         {
             Clear();
-            AddVisualChildren(ItemsSource);
+            AddVisualChildrens(ItemsSource);
         }
 
 
         private void Clear()
         {
+            countOfVisibleItems = 0;
             visuals.Clear();
             visualDictionary.Clear();
         }
@@ -231,7 +264,7 @@ namespace VisualInspector.Infrastructure
                     var visual = FindVisualForModel(model);
                     if (visual != null)
                     {
-                        visuals.Remove(visual);
+                        RemoveVisual(visual);
                         visualDictionary.Remove(model);
                     }
                 }
@@ -262,16 +295,21 @@ namespace VisualInspector.Infrastructure
                 RemoveVisualChildren(args.OldItems);
 
             if (args.NewItems != null)
-                AddVisualChildren(args.NewItems);
-            Redraw();
+            {
+                AddVisualChildrens(args.NewItems);
+            }
+            //Redraw();
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        private void ExtendWidth()
         {
-            base.OnRenderSizeChanged(sizeInfo);
+            if (double.IsNaN(Width))
+                Width = (visuals.Count - 1) * (itemSize.Width + gapWidth);
+            if (Width <= (visuals.Count - 1) * (itemSize.Width + gapWidth))
+                Width += 1000;
         }
 
-        private void AddVisualChildren(IEnumerable models)
+        private void AddVisualChildrens(IEnumerable models)
         {
             foreach (var item in models)
             {
@@ -282,65 +320,53 @@ namespace VisualInspector.Infrastructure
                     if (visual == null)
                     {
                         visual = new DrawingVisual();
-                        visuals.Add(visual);
+                        CreateVisualFromModel(model, visual, new Rect(new Point(0, 0), itemSize));
+                        if (filterDictionary[model.GetWarningLevel()])
+                        {
+                            SetOffset(visual, countOfVisibleItems);
+                            countOfVisibleItems++;
+                        }
+                        else
+                        {
+                            SetOffset(visual, -9999);
+                        }
+                        AddVisual(visual);
                         visualDictionary.Add(model, visual);
                     }
                 }
             }
         }
 
+
         private void OnCollectionCleared(object sender, EventArgs e)
         {
             Clear();
-            Redraw();
         }
 
+        private void EraseVisual(DrawingVisual visual)
+        {
+            var dc = visual.RenderOpen();
+            dc.Close();
+        }
         private void EraseAllVisuals()
         {
             foreach (var item in visualIndexator.Values)
             {
-                var dc = item.RenderOpen();
-                dc.Close();
+                EraseVisual(item);
             }
         }
+
+
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
-            drawingContext.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, Width + 100, Height + 100));
-        }
-        private void Redraw()
-        {
-            visualIndexator.Clear();
-            if (ItemsSource != null)
-            {
-                int i = 0;
-                foreach (var item in ItemsSource)
-                {
-                    var model = item as EventViewModel;
-                    if (model != null)
-                    {
-						var type = model.GetWarningLevel();
-                        if (!filterDictionary[type])
-							continue;
-						var visual = FindVisualForModel(model);
-						visualIndexator.Add(i, visual);
-                        var rect = new Rect(gapWidth + i * (itemSize.Width + gapWidth), gapWidth, itemSize.Width, itemSize.Height);
-                        visual = CreateVisualFromModel(model, visual, rect);
-						if(SelectedItem == model)
-						{
-							model.ToggleVisual(visual, true);
-						}
-                        i++;
-                    }
-                }
-                if (double.IsNaN(Width))
-                    Width = i * (itemSize.Width + gapWidth);
-                if (Width <= i * (itemSize.Width + gapWidth))
-                    Width += 1000;
-            }
+            var rect = new Rect(0, 0, Width + 100, Height + 100);
+            drawingContext.DrawRectangle(Brushes.Transparent, null, rect);
         }
 
 
-        
+
+
+
     }
 }
