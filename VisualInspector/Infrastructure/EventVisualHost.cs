@@ -126,6 +126,7 @@ namespace VisualInspector.Infrastructure
                     }
                 }
             }
+            ExtendWidth();
         }
 
         private void SetOffset(DrawingVisual visual, int offset)
@@ -335,6 +336,7 @@ namespace VisualInspector.Infrastructure
                     }
                 }
             }
+            ExtendWidth();
         }
 
 
