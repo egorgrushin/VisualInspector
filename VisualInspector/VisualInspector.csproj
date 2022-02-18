@@ -54,7 +54,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Infrastructure\Converters\Converters.cs" />
-    <Compile Include="Infrastructure\EventViewModel.cs" />
+    <Compile Include="ViewModels\EventViewModel.cs" />
     <Compile Include="Infrastructure\EventVisualFactory.cs" />
     <Compile Include="Infrastructure\EventVisualHost.cs" />
     <Compile Include="Infrastructure\IVisualFactory.cs" />
@@ -70,7 +70,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\VideoPlayerWindow.xaml.cs">
+      <DependentUpon>VideoPlayerWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="Views\MainView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VideoPlayerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

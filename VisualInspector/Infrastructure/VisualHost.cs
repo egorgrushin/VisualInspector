@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Controls;
+using VisualInspector.ViewModels;
 
 namespace VisualInspector.Infrastructure
 {

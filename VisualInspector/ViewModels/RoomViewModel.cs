@@ -17,6 +17,12 @@ namespace VisualInspector.ViewModels
             get { return Get(() => Events); }
             set { Set(() => Events, value); }
         }
+        public int Number
+        {
+            get { return Get(() => Number); }
+            set { Set(() => Number, value); }
+        }
+        
 		public EventViewModel SelectedEvent
 		{
 			get	{ return Get(() => SelectedEvent); }
@@ -26,8 +32,9 @@ namespace VisualInspector.ViewModels
 				}
 		}
 
-        public RoomViewModel()
+        public RoomViewModel(int number)
         {
+            Number = number;
             Events = new ObservableNotifiableCollection<EventViewModel>();
         }
 

@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Windows;
 using VisualInspector.Infrastructure.ServerPart;
 using System.Windows.Media.Imaging;
+using VisualInspector.Views;
 
 namespace VisualInspector.ViewModels
 {
@@ -20,11 +21,11 @@ namespace VisualInspector.ViewModels
     {
         Outside, Inside
     }
-
     public enum AccessLevels
     {
         Without, Guest, Staff, Administator
     }
+
     public class MainViewModel : ViewModel
     {
         #region Properties & fields
@@ -32,6 +33,7 @@ namespace VisualInspector.ViewModels
         private IVisualFactory<EventViewModel> visualFactory;
         private TcpServer server;
         private bool selectionLock;
+        private RelayCommand showVideoCommand;
         public IEnumerable<string> EnumCol { get; set; }
 
         public ObservableNotifiableCollection<RoomViewModel> Rooms
@@ -39,8 +41,7 @@ namespace VisualInspector.ViewModels
             get { return Get(() => Rooms); }
             set { Set(() => Rooms, value); }
         }
-
-
+        
         public EventViewModel SelectedEvent
         {
             get { return Get(() => SelectedEvent); }
@@ -76,7 +77,7 @@ namespace VisualInspector.ViewModels
             visualFactory = new EventVisualFactory(pens, brushes);
             //var thread = new Thread(InitRoomsFromOtherThread);
             //thread.Start(20);
-			InitRooms(50);
+			InitRooms(1000);
 			var thread = new Thread(FillRooms);
 			thread.IsBackground = true;
 			var context = SynchronizationContext.Current;
@@ -85,28 +86,24 @@ namespace VisualInspector.ViewModels
         }
         #endregion
 
-
-        #region TestCrossthreadCollection
-        private void InitRoomsFromOtherThread(object obj)
+        public ICommand ShowVideoCommand
         {
-            var count = (int)obj;
-            for (int i = 0; i < count; i++)
+            get
             {
-                var roomViewModel = new RoomViewModel();
-                for (int j = 0; j < 10; j++)
-                {
-                    var newEvent = new Event()
-                    {
-                        WarningLevel =
-                        (WarningLevels)Enum.GetValues(typeof(WarningLevels)).GetValue(rd.Next(Enum.GetValues(typeof(WarningLevels)).Length))
-                    };
-                    roomViewModel.Events.Add(new EventViewModel(newEvent, visualFactory));
-                }
-                Rooms.Add(roomViewModel);
-                Thread.Sleep(200);
+                if (showVideoCommand == null)
+                    showVideoCommand = new RelayCommand(
+                        (param) => ShowVideo(),
+                        (param) => SelectedEvent != null);
+                return showVideoCommand;
             }
         }
-        #endregion
+
+        private void ShowVideo()
+        {
+            var videoForm = new VideoPlayerWindow();
+            videoForm.DataContext = SelectedEvent;
+            videoForm.ShowDialog();
+        }
 
         #region Server part
         private void LaunchServer()
@@ -139,9 +136,8 @@ namespace VisualInspector.ViewModels
                 AccessLevel = accessLevel,
                 Room = roomNumber,
                 DateTime = DateTime.Now,
-				VideoFileName = fileName
+                VideoFileName = fileName
             };
-			//MessageBox.Show(newEvent.FramesList.ToString());
             return newEvent;
         }
 
@@ -161,7 +157,7 @@ namespace VisualInspector.ViewModels
         {
             for (int i = 0; i < n; i++)
             {
-                var roomViewModel = new RoomViewModel();
+                var roomViewModel = new RoomViewModel(i + 1);
                 roomViewModel.SelectionChanged += roomViewModel_SelectionChanged;
                 Rooms.Add(roomViewModel);
             }
@@ -185,16 +181,8 @@ namespace VisualInspector.ViewModels
             }
         }
 
-        #region TestMultiThreadInitialization
-        private void AddEventInRoom(object state)
-        {
-            Trace.WriteLine("AddEventInRoom in: " + Thread.CurrentThread.ManagedThreadId);
-            var parameters = state as MultiParameter;
-            var room = parameters.Parameters[0] as RoomViewModel;
-            var ev = parameters.Parameters[1] as EventViewModel;
-            room.Events.Add(ev);
+        #region Life emulation
 
-        }
         private void FillRooms(object state)
 		{
 			var context = state as SynchronizationContext;

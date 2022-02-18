@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using VisualInspector.Models;
+using VisualInspector.ViewModels;
 
 namespace VisualInspector.Infrastructure
 {

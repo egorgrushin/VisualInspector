@@ -8,8 +8,9 @@ using VisualInspector.Models;
 using System.Windows;
 using VisualInspector.ViewModels;
 using System.Windows.Media.Imaging;
+using VisualInspector.Infrastructure;
 
-namespace VisualInspector.Infrastructure
+namespace VisualInspector.ViewModels
 {
     public class EventViewModel : ViewModel
     {
@@ -18,7 +19,12 @@ namespace VisualInspector.Infrastructure
 
         private readonly Event eventModel;
         private readonly IVisualFactory<EventViewModel> visualFactory;
+        
 
+        public string VideoFileName
+        {
+            get { return eventModel.VideoFileName; }
+        }
 		public List<BitmapImage> FramesList
 		{
 			get

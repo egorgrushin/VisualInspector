@@ -23,13 +23,14 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <Trigger Property="IsChecked" Value="true">
+                <Trigger Property="IsChecked" Value="False">
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate>
                                 <Grid>
-                                    <Rectangle Stroke="Black" Fill="{TemplateBinding Background}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                                    <Rectangle Stroke="Black" Fill="Black" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.15"/>
+                                    <Rectangle Stroke="Black" Fill="Gray"
+                                               VerticalAlignment="Stretch"
+                                               HorizontalAlignment="Stretch"/>
                                     <ContentPresenter/>
                                 </Grid>
                             </ControlTemplate>
