@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:VisualInspector.Views"
         xmlns:infr="clr-namespace:VisualInspector.Infrastructure"
-        Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen">
+        Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -26,18 +27,26 @@
                             <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Button Content="{Binding Number}"
-                        Grid.Column="0" >
+                        <!--<Border
+                            BorderThickness="5" 
+                            CornerRadius="10,0,10,0"
+                            Background="LightGray">
+                            <TextBlock Text="{Binding Number}" Grid.Column="0"
+                                   TextAlignment="Center"/>
+                        </Border>-->
+                        <Button Content="{Binding Number}" 
+                        Grid.Column="0" Margin="2, 0, 2, 0">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
-                                                <Border
+                                                <Border Margin="-4"
                                                     BorderThickness="5" 
                                                     CornerRadius="10,0,10,0"
                                                     Background="LightGray">
                                                     <TextBlock
+                                                        LineStackingStrategy="BlockLineHeight"
                                                         HorizontalAlignment="Center"
                                                         Text="{Binding Path=Content,
                           RelativeSource={RelativeSource TemplatedParent}}" />
@@ -104,7 +113,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
             <Button Content="Show videofragment" Command="{Binding ShowVideoCommand}" Grid.Column="1" HorizontalAlignment="Left"/>
-            <ListBox ItemsSource="{Binding SelectedFrameList}" Grid.Column="2">
+            <ListBox ItemsSource="{Binding SelectedFrameList}" Grid.Column="2" HorizontalAlignment="Center">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>
@@ -112,9 +121,24 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Image Source="{Binding}" Width="100" Height="100"/>
+                        <Image Source="{Binding}" Margin="2">
+                            <Image.LayoutTransform>
+                                <ScaleTransform ScaleX="0.25" ScaleY="0.25"/>
+                            </Image.LayoutTransform>
+                        </Image>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
+                <!--<ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>-->
             </ListBox>
 
         </Grid>
