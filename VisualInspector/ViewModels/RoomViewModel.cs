@@ -5,11 +5,14 @@ using System.Linq;
 using System.Text;
 using VisualInspector.Infrastructure;
 using System.Windows.Media.Imaging;
+using NLog;
 
 namespace VisualInspector.ViewModels
 {
     public class RoomViewModel : ViewModel
-    {
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
 		public event EventHandler SelectionChanged;
 
         public ObservableNotifiableCollection<EventViewModel> Events

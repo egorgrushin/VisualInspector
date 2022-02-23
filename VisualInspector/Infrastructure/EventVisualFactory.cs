@@ -6,11 +6,14 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using VisualInspector.ViewModels;
+using NLog;
 
 namespace VisualInspector.Infrastructure
 {
     public class EventVisualFactory : IVisualFactory<EventViewModel>
-    {
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private readonly IDictionary<string, Pen> pens;
         private readonly IDictionary<string, Brush> brushes;
 

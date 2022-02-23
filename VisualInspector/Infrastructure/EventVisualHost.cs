@@ -10,11 +10,14 @@ using System.Windows;
 using System.Windows.Media;
 using VisualInspector.Models;
 using VisualInspector.ViewModels;
+using NLog;
 
 namespace VisualInspector.Infrastructure
 {
     public class EventVisualHost : VisualHost
-    {
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private Dictionary<WarningLevels, bool> filterDictionary = new Dictionary<WarningLevels, bool>()
         {
             {WarningLevels.Normal, true},

@@ -14,6 +14,7 @@ using System.Windows;
 using VisualInspector.Infrastructure.ServerPart;
 using System.Windows.Media.Imaging;
 using VisualInspector.Views;
+using NLog;
 
 namespace VisualInspector.ViewModels
 {
@@ -27,7 +28,9 @@ namespace VisualInspector.ViewModels
     }
 
     public class MainViewModel : ViewModel
-    {
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
         #region Properties & fields
         Random rd;
         private IVisualFactory<EventViewModel> visualFactory;

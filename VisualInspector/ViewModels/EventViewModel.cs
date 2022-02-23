@@ -10,11 +10,13 @@ using VisualInspector.ViewModels;
 using System.Windows.Media.Imaging;
 using VisualInspector.Infrastructure;
 using System.Threading;
+using NLog;
 
 namespace VisualInspector.ViewModels
 {
     public class EventViewModel : ViewModel
-    {
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public Guid Id { get; set; }
 

@@ -7,11 +7,14 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Controls;
 using VisualInspector.ViewModels;
+using NLog;
 
 namespace VisualInspector.Infrastructure
 {
     public class VisualHost : FrameworkElement
-    {
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
         protected List<DrawingVisual> visuals;
 
         protected List<DrawingVisual> hits;

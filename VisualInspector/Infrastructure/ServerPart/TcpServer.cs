@@ -7,11 +7,14 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
+using NLog;
 
 namespace VisualInspector.Infrastructure.ServerPart
 {
     class ClientMsgEventArgs : EventArgs
-    {
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
         public string Message { get; set; }
         public ClientMsgEventArgs(string message)
         {

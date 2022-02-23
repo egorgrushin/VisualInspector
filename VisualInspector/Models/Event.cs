@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Windows;
 using AForge.Video.FFMPEG;
+using NLog;
 
 namespace VisualInspector.Models
 {
@@ -20,7 +21,9 @@ namespace VisualInspector.Models
     }
 
     public class Event
-    {
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
         public static readonly int FramesForPreview = 5;
 
 
@@ -38,34 +41,34 @@ namespace VisualInspector.Models
         public void InitFramesList(List<BitmapImage> framesList)
         {
             framesList.Clear();
-            if (File.Exists(VideoFileName))
-            {
-                var videoReader = new VideoFileReader();
-                videoReader.Open(VideoFileName);
-                var framesCount = videoReader.FrameCount;
-                framesCount = 250;
-                var multiplicity = (int)(framesCount / FramesForPreview);
-                for (int i = 0; i < framesCount; i++)
-                {
-                    var nextFrame = videoReader.ReadVideoFrame();
-                    if (i % multiplicity == 0)
-                    {
-                        using (MemoryStream memory = new MemoryStream())
-                        {
-                            nextFrame.Save(memory, ImageFormat.Png);
-                            memory.Position = 0;
-                            var bitmapImage = new BitmapImage();
-                            bitmapImage.BeginInit();
-                            bitmapImage.StreamSource = memory;
-                            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                            bitmapImage.EndInit();
-                            bitmapImage.Freeze();
-                            nextFrame.Dispose();
-                          framesList.Add(bitmapImage);
-                        }
-                    }
-                }
-            }
+			if (File.Exists(VideoFileName))
+			{
+				var videoReader = new VideoFileReader();
+				videoReader.Open(VideoFileName);
+				var framesCount = videoReader.FrameCount;
+				framesCount = 250;
+				var multiplicity = (int)(framesCount / FramesForPreview);
+				for (int i = 0; i < framesCount; i++)
+				{
+					var nextFrame = videoReader.ReadVideoFrame();
+					if (i % multiplicity == 0)
+					{
+						using (var memory = new MemoryStream())
+						{
+							nextFrame.Save(memory, ImageFormat.Png);
+							memory.Position = 0;
+							var bitmapImage = new BitmapImage();
+							bitmapImage.BeginInit();
+							bitmapImage.StreamSource = memory;
+							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+							bitmapImage.EndInit();
+                            				bitmapImage.Freeze();
+							nextFrame.Dispose();
+                          				framesList.Add(bitmapImage);
+						}
+					}
+				}
+			}
 
         }
 
