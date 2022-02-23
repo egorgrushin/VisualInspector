@@ -23,7 +23,6 @@ namespace VisualInspector.Models
     {
         public static readonly int FramesForPreview = 5;
 
-        private List<BitmapImage> framesList;
 
         #region Properties
 
@@ -34,27 +33,11 @@ namespace VisualInspector.Models
         public DateTime DateTime { get; set; }
         public int AccessLevel { get; set; }
         public string VideoFileName { get; set; }
-        public List<BitmapImage> FramesList
+
+
+        public void InitFramesList(List<BitmapImage> framesList)
         {
-            get
-            {
-                if (framesList == null)
-                {
-                    framesList = InitFramesList();
-                }
-                return framesList;
-            }
-            set
-            {
-                framesList = value;
-            }
-        }
-
-
-        private List<BitmapImage> InitFramesList()
-        {
-            var result = new List<BitmapImage>();
-
+            framesList.Clear();
             if (File.Exists(VideoFileName))
             {
                 var videoReader = new VideoFileReader();
@@ -62,7 +45,6 @@ namespace VisualInspector.Models
                 var framesCount = videoReader.FrameCount;
                 framesCount = 250;
                 var multiplicity = (int)(framesCount / FramesForPreview);
-
                 for (int i = 0; i < framesCount; i++)
                 {
                     var nextFrame = videoReader.ReadVideoFrame();
@@ -77,14 +59,14 @@ namespace VisualInspector.Models
                             bitmapImage.StreamSource = memory;
                             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                             bitmapImage.EndInit();
+                            bitmapImage.Freeze();
                             nextFrame.Dispose();
-                            result.Add(bitmapImage);
+                          framesList.Add(bitmapImage);
                         }
                     }
                 }
             }
 
-            return result;
         }
 
         #endregion

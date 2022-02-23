@@ -3,8 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:VisualInspector.Views"
         xmlns:infr="clr-namespace:VisualInspector.Infrastructure"
+        xmlns:converters ="clr-namespace:VisualInspector.Infrastructure.Converters"
         Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen"
         UseLayoutRounding="True">
+    <Window.Resources>
+        <converters:IsNullConverter x:Key="IsNullConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -106,7 +110,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
             <Button Content="Show videofragment" Command="{Binding ShowVideoCommand}" Grid.Column="1" HorizontalAlignment="Left"/>
-            <ListBox ItemsSource="{Binding SelectedFrameList}" Grid.Column="2" HorizontalAlignment="Center">
+            <ListBox ItemsSource="{Binding SelectedFrameList}" Grid.Column="2" HorizontalAlignment="Center" >
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>
@@ -121,6 +125,27 @@
                         </Image>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
+                <ListBox.Style>
+                    <Style TargetType="ListBox">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Style.Triggers>
+                            <DataTrigger 
+                                Binding="{Binding SelectedFrameList}" 
+                                Value="{x:Null}">
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                             From="0"
+                  To="1" Duration="0:0:1" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.Style>
                 <!--<ListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ListBoxItem}">
                         <Setter Property="Template">

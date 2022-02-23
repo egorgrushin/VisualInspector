@@ -121,7 +121,6 @@ namespace VisualInspector.Infrastructure
 
                             SetOffset(visual, countOfVisibleItems);
                             countOfVisibleItems++;
-                            // visual = CreateVisualFromModel(eventViewModel, visual, rect);
                         }
                         else
                         {

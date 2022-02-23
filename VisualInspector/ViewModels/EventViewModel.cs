@@ -9,6 +9,7 @@ using System.Windows;
 using VisualInspector.ViewModels;
 using System.Windows.Media.Imaging;
 using VisualInspector.Infrastructure;
+using System.Threading;
 
 namespace VisualInspector.ViewModels
 {
@@ -25,14 +26,11 @@ namespace VisualInspector.ViewModels
         {
             get { return eventModel.VideoFileName; }
         }
-		public List<BitmapImage> FramesList
-		{
-			get
-			{
-				return eventModel.FramesList;
-			}
-		}
 
+        public void InitFramesList(List<BitmapImage> framesList)
+        {
+            eventModel.InitFramesList(framesList);
+        }
         public EventViewModel(Event eventModel, IVisualFactory<EventViewModel> visualFactory)
         {
             this.eventModel = eventModel;
