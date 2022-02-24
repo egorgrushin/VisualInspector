@@ -18,7 +18,7 @@
         </StackPanel>
 
         <ListBox Grid.Row="1" ItemsSource="{Binding Rooms, Mode=TwoWay}"  
-                 Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                 Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Visible" 
                  Background="#969945">
             <ListBox.ItemTemplate>
                 <DataTemplate>
@@ -27,13 +27,6 @@
                             <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <!--<Border
-                            BorderThickness="5" 
-                            CornerRadius="10,0,10,0"
-                            Background="LightGray">
-                            <TextBlock Text="{Binding Number}" Grid.Column="0"
-                                   TextAlignment="Center"/>
-                        </Border>-->
                         <Button Content="{Binding Number}" 
                         Grid.Column="0" Margin="2, 0, 2, 0">
                             <Button.Style>

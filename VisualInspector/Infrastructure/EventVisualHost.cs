@@ -108,22 +108,25 @@ namespace VisualInspector.Infrastructure
         private void ApplyFilters(WarningLevels currentWarningLevel)
         {
             countOfVisibleItems = 0;
-            foreach (var item in ItemsSource)
+            if (ItemsSource != null)
             {
-                var eventViewModel = item as EventViewModel;
-                if (eventViewModel != null)
+                foreach (var item in ItemsSource)
                 {
-                    var visual = FindVisualForModel(eventViewModel);
-                    if (filterDictionary[eventViewModel.GetWarningLevel()])
+                    var eventViewModel = item as EventViewModel;
+                    if (eventViewModel != null)
                     {
+                        var visual = FindVisualForModel(eventViewModel);
+                        if (filterDictionary[eventViewModel.GetWarningLevel()])
+                        {
 
-                        SetOffset(visual, countOfVisibleItems);
-                        countOfVisibleItems++;
-                        // visual = CreateVisualFromModel(eventViewModel, visual, rect);
-                    }
-                    else
-                    {
-                        SetOffset(visual, -9999);
+                            SetOffset(visual, countOfVisibleItems);
+                            countOfVisibleItems++;
+                            // visual = CreateVisualFromModel(eventViewModel, visual, rect);
+                        }
+                        else
+                        {
+                            SetOffset(visual, -9999);
+                        }
                     }
                 }
             }

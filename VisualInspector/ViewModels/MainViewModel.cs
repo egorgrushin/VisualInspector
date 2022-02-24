@@ -75,14 +75,13 @@ namespace VisualInspector.ViewModels
                 { "High",  App.Current.Resources["forHighBrush"] as SolidColorBrush}
             };
             visualFactory = new EventVisualFactory(pens, brushes);
-            //var thread = new Thread(InitRoomsFromOtherThread);
-            //thread.Start(20);
-			InitRooms(10);
+
+			InitRooms(1000);
+
 			var thread = new Thread(FillRooms);
 			thread.IsBackground = true;
 			var context = SynchronizationContext.Current;
 			thread.Start(context);
-            //LaunchServer();
         }
         #endregion
 

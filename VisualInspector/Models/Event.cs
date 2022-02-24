@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using AForge.Video.FFMPEG;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Windows;
+using AForge.Video.FFMPEG;
 
 namespace VisualInspector.Models
 {
@@ -48,6 +49,8 @@ namespace VisualInspector.Models
                 framesList = value;
             }
         }
+
+
         private List<BitmapImage> InitFramesList()
         {
             var result = new List<BitmapImage>();
@@ -85,5 +88,6 @@ namespace VisualInspector.Models
         }
 
         #endregion
+
     }
 }
