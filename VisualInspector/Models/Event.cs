@@ -62,11 +62,11 @@ namespace VisualInspector.Models
 							bitmapImage.StreamSource = memory;
 							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
 							bitmapImage.EndInit();
-                            				bitmapImage.Freeze();
-							nextFrame.Dispose();
-                          				framesList.Add(bitmapImage);
+                            bitmapImage.Freeze();
+                          	framesList.Add(bitmapImage);
 						}
 					}
+					nextFrame.Dispose();
 				}
 			}
 

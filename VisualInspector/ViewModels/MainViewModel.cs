@@ -61,16 +61,16 @@ namespace VisualInspector.ViewModels
 
         private void InitFrameList()
         {
-            var framesList = new List<BitmapImage>();
-            new Thread(delegate(object param)
-                {
-                    var context = param as SynchronizationContext;
-                    SelectedEvent.InitFramesList(framesList);
-                    context.Send(delegate
-                    {
-                        SelectedFrameList = framesList;
-                    }, null);
-                }).Start(SynchronizationContext.Current);
+			new Thread(delegate(object param)
+			{
+				var framesList = new List<BitmapImage>();
+				var context = param as SynchronizationContext;
+				SelectedEvent.InitFramesList(framesList);
+				context.Send(delegate
+				{
+					SelectedFrameList = framesList;
+				}, null);
+			}).Start(SynchronizationContext.Current);
         }
 
 		public List<BitmapImage> SelectedFrameList
@@ -98,7 +98,7 @@ namespace VisualInspector.ViewModels
             };
             visualFactory = new EventVisualFactory(pens, brushes);
 
-			InitRooms(2);
+			InitRooms(10);
 
 			var thread = new Thread(FillRooms);
 			thread.IsBackground = true;
