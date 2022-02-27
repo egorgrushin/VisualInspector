@@ -132,7 +132,7 @@ namespace VisualInspector.Infrastructure
                     }
                 }
             }
-            ExtendWidth();
+            Width = countOfVisibleItems * (itemSize.Width + gapWidth);
         }
 
         private void SetOffset(DrawingVisual visual, int offset)
@@ -173,6 +173,7 @@ namespace VisualInspector.Infrastructure
 
         private Size itemSize;
         private int gapWidth;
+        private DrawingVisual lastMarkedVisual;
 
         public EventVisualHost()
         {
@@ -181,6 +182,23 @@ namespace VisualInspector.Infrastructure
             gapWidth = 1;
             Height = itemSize.Height + gapWidth;
             MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
+            //MouseMove += EventVisualHost_MouseMove;
+        }
+
+        void EventVisualHost_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (lastMarkedVisual != null)
+            {
+                var model = visualDictionary.FirstOrDefault((x) => x.Value == lastMarkedVisual).Key;
+                model.MarkSelected(lastMarkedVisual, false);
+            }
+            var visual = GetVisual(e.GetPosition(this));
+            if (visual != null)
+            {
+                var model = visualDictionary.FirstOrDefault((x) => x.Value == visual).Key;
+                model.MarkSelected(visual, true);
+                lastMarkedVisual = visual;
+            }
         }
 
 
@@ -311,8 +329,8 @@ namespace VisualInspector.Infrastructure
         private void ExtendWidth()
         {
             if (double.IsNaN(Width))
-                Width = (visuals.Count - 1) * (itemSize.Width + gapWidth);
-            if (Width <= (visuals.Count - 1) * (itemSize.Width + gapWidth))
+                Width = countOfVisibleItems * (itemSize.Width + gapWidth);
+            if (Width <= countOfVisibleItems * (itemSize.Width + gapWidth))
                 Width += 1000;
         }
 

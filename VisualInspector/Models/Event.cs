@@ -21,8 +21,8 @@ namespace VisualInspector.Models
     }
 
     public class Event
-	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+    {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public static readonly int FramesForPreview = 5;
 
@@ -44,7 +44,9 @@ namespace VisualInspector.Models
 			if (File.Exists(VideoFileName))
 			{
 				var videoReader = new VideoFileReader();
-				videoReader.Open(VideoFileName);
+                try
+                {
+                videoReader.Open(VideoFileName);
 				var framesCount = videoReader.FrameCount;
 				framesCount = 250;
 				var multiplicity = (int)(framesCount / FramesForPreview);
@@ -68,6 +70,10 @@ namespace VisualInspector.Models
 					}
 					nextFrame.Dispose();
 				}
+                }
+                catch
+                {
+                }
 			}
 
         }

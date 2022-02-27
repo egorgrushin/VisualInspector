@@ -21,5 +21,7 @@ namespace VisualInspector.Infrastructure
 		/// <param name="toggleState">true - selected, false - unselected</param>
 		/// <returns></returns>
         DrawingVisual Toggle(T viewModel, DrawingVisual canvas, bool toggleState);
+
+        void Mark(ViewModels.EventViewModel eventViewModel, DrawingVisual visual, bool p);
     }
 }

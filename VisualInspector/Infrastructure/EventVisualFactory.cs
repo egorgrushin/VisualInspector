@@ -53,5 +53,22 @@ namespace VisualInspector.Infrastructure
             }
             return canvas;
         }
+
+
+        public void Mark(EventViewModel eventViewModel, DrawingVisual visual, bool p)
+        {
+            using (var context = visual.RenderOpen())
+            {
+                var rect = visual.ContentBounds;
+                context.DrawRectangle(Brushes.Black, null, visual.ContentBounds);
+                var rect2 = new Rect(new Point(rect.Location.X + 1, rect.Location.Y + 1),
+                    new Size(rect.Size.Width - 2, rect.Size.Height - 2));
+                var brushOriginal = brushes[eventViewModel.GetWarningLevel().ToString()];
+                var brushToToggle = new SolidColorBrush(Colors.Green);
+                brushToToggle.Opacity = p ? 0.35 : 0.0;
+                context.DrawRectangle(brushOriginal, null, rect2);
+                context.DrawRectangle(brushToToggle, null, rect2);
+            }
+        }
     }
 }

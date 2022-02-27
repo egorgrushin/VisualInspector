@@ -60,6 +60,10 @@ namespace VisualInspector.ViewModels
             return visualFactory.Toggle(this, oldVisual, toggleState);
         }
 
+        internal void MarkSelected(DrawingVisual visual, bool p)
+        {
+            visualFactory.Mark(this, visual, p);
+        }
         public override string ToString()
         {
             return string.Format("Warning: {0}\r\nLock: {1}\r\nSensor: {2}\r\nAccess: {3}\r\nRoom: {4}\r\nDateTime: {5}",
@@ -67,8 +71,9 @@ namespace VisualInspector.ViewModels
                 eventModel.Lock,
                 Enum.GetName(typeof(Sensors), eventModel.Sensor),
                 Enum.GetName(typeof(AccessLevels), eventModel.AccessLevel),
-                eventModel.Room, 
+                eventModel.Room + 1, 
                 string.Format("{0:dd.MM.yyyy hh:mm:ss}", eventModel.DateTime));
         }
+
     }
 }
