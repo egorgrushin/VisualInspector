@@ -7,8 +7,9 @@
         Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen"
         UseLayoutRounding="True">
     <Window.Resources>
-        <converters:IsNullConverter x:Key="IsNullConverter"/>
-    </Window.Resources>
+		<converters:IsNullConverter x:Key="IsNullConverter"/>
+		<converters:IsVisibleConverter x:Key="IsVisibleConverter"/>
+	</Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -110,13 +111,24 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
-            <Button Content="Show videofragment" Command="{Binding ShowVideoCommand}" Grid.Column="1" HorizontalAlignment="Left"/>
-            <ListBox ItemsSource="{Binding SelectedFrameList}" Grid.Column="2" HorizontalAlignment="Center" >
+			<ProgressBar Grid.Column="2" Width="1000" Value="{Binding Progress, Mode=OneWay}">
+				<ProgressBar.Style>
+					<Style>
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding ElementName=listWithFrames, Path=Visibility}" Value="Visible">
+								<Setter Property="ProgressBar.Visibility" Value="Hidden"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</ProgressBar.Style>
+			</ProgressBar>
+            <Button Content="Show videofragment" Command="{Binding ShowVideoCommand}" Grid.Column="1" HorizontalAlignment="Right"/>
+			<ListBox ItemsSource="{Binding SelectedFrameList}" Grid.Column="2" Name="listWithFrames" HorizontalAlignment="Center" Visibility="{Binding IsLoaded, Converter={StaticResource IsVisibleConverter}}">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
+                </ListBox.ItemsPanel>	
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Image Source="{Binding}" Margin="2">

@@ -15,6 +15,7 @@ using VisualInspector.Infrastructure.ServerPart;
 using System.Windows.Media.Imaging;
 using VisualInspector.Views;
 using NLog;
+using System.ComponentModel;
 
 namespace VisualInspector.ViewModels
 {
@@ -37,42 +38,69 @@ namespace VisualInspector.ViewModels
         private TcpServer server;
         private bool selectionLock;
         private RelayCommand showVideoCommand;
+		//Worker that was started by previous selection. Should be canceled to avoid massive SelectedFrameList assignment calls
+		private BackgroundWorker currentWorker; 
         public IEnumerable<string> EnumCol { get; set; }
-
+		
         public ObservableNotifiableCollection<RoomViewModel> Rooms
         {
             get { return Get(() => Rooms); }
             set { Set(() => Rooms, value); }
         }
+        public int Progress
+        {
+            get { return Get(() => Progress); }
+            set { Set(() => Progress, value); }
+        }
+		public bool IsLoaded
+        {
+            get { return Get(() => IsLoaded); }
+            set { Set(() => IsLoaded, value); }
+        }
         
         public EventViewModel SelectedEvent
         {
             get { return Get(() => SelectedEvent); }
-            set { 
-					Set(() => SelectedEvent, value);
-                    if (SelectedEvent == null)
-                        SelectedFrameList = null;
-                    else
-                    {
-                        InitFrameList();
-                    }
-				}
-        }
-
-        private void InitFrameList()
-        {
-			new Thread(delegate(object param)
-			{
-				var framesList = new List<BitmapImage>();
-				var context = param as SynchronizationContext;
-				SelectedEvent.InitFramesList(framesList);
-				context.Send(delegate
+            set 
+			{ 
+				Set(() => SelectedEvent, value);
+                if (SelectedEvent == null)
 				{
-					SelectedFrameList = framesList;
-				}, null);
-			}).Start(SynchronizationContext.Current);
+                    SelectedFrameList = null;
+				}
+                else
+                {
+					IsLoaded = false;
+					if(currentWorker != null)
+					{
+						currentWorker.CancelAsync();
+					}
+					var worker = new BackgroundWorker();
+					worker.DoWork += delegate(object sender, DoWorkEventArgs e)
+					{
+						var param = e.Argument;
+						e.Result = SelectedEvent.InitFramesList(worker, e);
+					};
+					worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
+					{
+						if(!e.Cancelled && e.Error == null)
+						{
+							IsLoaded = true;
+							SelectedFrameList = e.Result as List<BitmapImage>;
+						}
+					};
+					worker.WorkerReportsProgress = true;
+					worker.WorkerSupportsCancellation = true;
+					worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e)
+					{
+						Progress = e.ProgressPercentage;
+						//MessageBox.Show(e.ProgressPercentage.ToString());
+					};
+					worker.RunWorkerAsync();
+					currentWorker = worker;
+				}
+			}
         }
-
 		public List<BitmapImage> SelectedFrameList
 		{
             get { return Get(() => SelectedFrameList); }
@@ -98,7 +126,7 @@ namespace VisualInspector.ViewModels
             };
             visualFactory = new EventVisualFactory(pens, brushes);
 
-			InitRooms(100);
+			InitRooms(30);
 
 			var thread = new Thread(FillRooms);
 			thread.IsBackground = true;
@@ -149,7 +177,7 @@ namespace VisualInspector.ViewModels
             var sensorNumber = int.Parse(data[2]);
             var accessLevel = int.Parse(data[3]);
             var roomNumber = int.Parse(data[4]);
-			var fileName = "test.mp4";
+			var fileName = DateTime.Now.Second % 2 == 0 ? "test1.mp4" : "test2.mp4";
             var newEvent = new Event()
             {
                 Lock = lockNumber,

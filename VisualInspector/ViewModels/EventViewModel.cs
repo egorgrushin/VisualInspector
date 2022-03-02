@@ -11,6 +11,7 @@ using System.Windows.Media.Imaging;
 using VisualInspector.Infrastructure;
 using System.Threading;
 using NLog;
+using System.ComponentModel;
 
 namespace VisualInspector.ViewModels
 {
@@ -29,9 +30,9 @@ namespace VisualInspector.ViewModels
             get { return eventModel.VideoFileName; }
         }
 
-        public void InitFramesList(List<BitmapImage> framesList)
+		public List<BitmapImage> InitFramesList(object sender, DoWorkEventArgs e)
         {
-            eventModel.InitFramesList(framesList);
+            return eventModel.InitFramesList(sender, e);
         }
         public EventViewModel(Event eventModel, IVisualFactory<EventViewModel> visualFactory)
         {
@@ -66,13 +67,7 @@ namespace VisualInspector.ViewModels
         }
         public override string ToString()
         {
-            return string.Format("Warning: {0}\r\nLock: {1}\r\nSensor: {2}\r\nAccess: {3}\r\nRoom: {4}\r\nDateTime: {5}",
-                eventModel.WarningLevel,
-                eventModel.Lock,
-                Enum.GetName(typeof(Sensors), eventModel.Sensor),
-                Enum.GetName(typeof(AccessLevels), eventModel.AccessLevel),
-                eventModel.Room + 1, 
-                string.Format("{0:dd.MM.yyyy hh:mm:ss}", eventModel.DateTime));
+            return eventModel.ToString();
         }
 
     }
