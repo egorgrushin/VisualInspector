@@ -50,12 +50,13 @@ namespace VisualInspector.Models
 				var videoReader = new VideoFileReader();
 				videoReader.Open(VideoFileName);
 				var framesCount = videoReader.FrameCount;
-				framesCount = 250;
+				//framesCount = 250;
 				var multiplicity = (int)(framesCount / FramesForPreview);
 				for (int i = 0; i < framesCount; i++)
 				{
 					if(worker.CancellationPending)
 					{
+                        videoReader.Close();
 						e.Cancel = true;
 						logger.Debug("Canceled InitFramesList for {0} at {1} step", this, i);
 						return null;
@@ -73,19 +74,21 @@ namespace VisualInspector.Models
 							bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
 							bitmapImage.EndInit();
 							bitmapImage.Freeze();
-                          	framesList.Add(bitmapImage);
+                            if (framesList.Count < FramesForPreview)
+                          	    framesList.Add(bitmapImage);
 						}
 					}
 					worker.ReportProgress((int)(((double)i / (double)framesCount) * 100d));
 					nextFrame.Dispose();
-				}
+                }
+                videoReader.Close();
 			}
 			else
 			{
 				logger.Error("File {0} does not exist! Can't read frames for event {1}", VideoFileName, this);
 			}
 
-			worker.ReportProgress(100);
+            worker.ReportProgress(100);
 			logger.Debug("Successfully finished InitFramesList for {0}", this);
 			return framesList;
         }

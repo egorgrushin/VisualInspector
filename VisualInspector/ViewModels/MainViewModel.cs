@@ -47,22 +47,18 @@ namespace VisualInspector.ViewModels
             get { return Get(() => Rooms); }
             set { Set(() => Rooms, value); }
         }
-        public int Progress
-        {
-            get { return Get(() => Progress); }
-            set { Set(() => Progress, value); }
-        }
-		public bool IsLoaded
-        {
-            get { return Get(() => IsLoaded); }
-            set { Set(() => IsLoaded, value); }
-        }
+
+
         
         public EventViewModel SelectedEvent
         {
             get { return Get(() => SelectedEvent); }
             set 
-			{ 
+			{
+                if (SelectedEvent != value)
+                {
+                    SelectedFrameList = null;
+                }
 				Set(() => SelectedEvent, value);
                 if (SelectedEvent == null)
 				{
@@ -70,7 +66,6 @@ namespace VisualInspector.ViewModels
 				}
                 else
                 {
-					IsLoaded = false;
 					if(currentWorker != null)
 					{
 						currentWorker.CancelAsync();
@@ -78,24 +73,17 @@ namespace VisualInspector.ViewModels
 					var worker = new BackgroundWorker();
 					worker.DoWork += delegate(object sender, DoWorkEventArgs e)
 					{
-						var param = e.Argument;
 						e.Result = SelectedEvent.InitFramesList(worker, e);
 					};
 					worker.RunWorkerCompleted += delegate(object sender, RunWorkerCompletedEventArgs e)
 					{
-						if(!e.Cancelled && e.Error == null)
+                        if (!e.Cancelled && e.Error == null && e.Result != null)
 						{
-							IsLoaded = true;
-							SelectedFrameList = e.Result as List<BitmapImage>;
+                            SelectedFrameList = e.Result as List<BitmapImage>;
 						}
 					};
 					worker.WorkerReportsProgress = true;
 					worker.WorkerSupportsCancellation = true;
-					worker.ProgressChanged += delegate(object sender, ProgressChangedEventArgs e)
-					{
-						Progress = e.ProgressPercentage;
-						//MessageBox.Show(e.ProgressPercentage.ToString());
-					};
 					worker.RunWorkerAsync();
 					currentWorker = worker;
 				}
@@ -177,7 +165,7 @@ namespace VisualInspector.ViewModels
             var sensorNumber = int.Parse(data[2]);
             var accessLevel = int.Parse(data[3]);
             var roomNumber = int.Parse(data[4]);
-			var fileName = DateTime.Now.Second % 2 == 0 ? "test1.mp4" : "test2.mp4";
+			var fileName = DateTime.Now.Second % 2 == 0 ? "test1.mp4" : "test1.mp4";
             var newEvent = new Event()
             {
                 Lock = lockNumber,

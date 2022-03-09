@@ -1,5 +1,6 @@
 ﻿<Window x:Class="VisualInspector.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:properties="clr-namespace:VisualInspector.Properties"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:VisualInspector.Views"
         xmlns:infr="clr-namespace:VisualInspector.Infrastructure"
@@ -111,19 +112,10 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
-			<ProgressBar Grid.Column="2" Width="1000" Value="{Binding Progress, Mode=OneWay}">
-				<ProgressBar.Style>
-					<Style>
-						<Style.Triggers>
-							<DataTrigger Binding="{Binding ElementName=listWithFrames, Path=Visibility}" Value="Visible">
-								<Setter Property="ProgressBar.Visibility" Value="Hidden"/>
-							</DataTrigger>
-						</Style.Triggers>
-					</Style>
-				</ProgressBar.Style>
-			</ProgressBar>
             <Button Content="Show videofragment" Command="{Binding ShowVideoCommand}" Grid.Column="1" HorizontalAlignment="Right"/>
-			<ListBox ItemsSource="{Binding SelectedFrameList}" Grid.Column="2" Name="listWithFrames" HorizontalAlignment="Center" Visibility="{Binding IsLoaded, Converter={StaticResource IsVisibleConverter}}">
+            <ListBox ItemsSource="{Binding SelectedFrameList, IsAsync=True}" Grid.Column="2"
+                     
+                     HorizontalAlignment="Stretch">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>
@@ -141,20 +133,17 @@
                 <ListBox.Style>
                     <Style TargetType="ListBox">
                         <Style.Triggers>
-                            <DataTrigger 
-                                Binding="{Binding SelectedFrameList}" 
-                                Value="{x:Null}">
-                                <Setter Property="Visibility" Value="Hidden"/>
-                                <DataTrigger.ExitActions>
+                            <Trigger Property="ItemsSource" Value="{x:Null}">
+                                <Setter Property="Template" Value="{StaticResource WaitControlTemplate}" />
+                                <Trigger.ExitActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation 
-                                                Storyboard.TargetProperty="Opacity"
-                                                From="0" To="1" Duration="0:0:1" />
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                             From="0" To="1" Duration="0:0:1"/>
                                         </Storyboard>
                                     </BeginStoryboard>
-                                </DataTrigger.ExitActions>
-                            </DataTrigger>
+                                </Trigger.ExitActions>
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
                 </ListBox.Style>

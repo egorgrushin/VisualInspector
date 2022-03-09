@@ -12,28 +12,7 @@ using System.Windows;
 
 namespace VisualInspector.Infrastructure.Converters
 {
-    public class LevelBrushConverter : ConverterBase
-    {
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var level = (WarningLevels)value;
-            var brush = new SolidColorBrush();
-            switch (level)
-            {
-                case WarningLevels.Normal:
-                    brush.Color = Colors.LightGreen;
-                    break;
-                case WarningLevels.Middle:
-                    brush.Color = Colors.Yellow;
-                    break;
-                case WarningLevels.High:
-                    brush.Color = Colors.Red;
-                    break;
-            }
-            return brush;
-        }
-    }
-
+   
     public class IsNullConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
