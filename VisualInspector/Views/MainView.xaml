@@ -7,10 +7,6 @@
         xmlns:converters ="clr-namespace:VisualInspector.Infrastructure.Converters"
         Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen"
         UseLayoutRounding="True">
-    <Window.Resources>
-		<converters:IsNullConverter x:Key="IsNullConverter"/>
-		<converters:IsVisibleConverter x:Key="IsVisibleConverter"/>
-	</Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -142,9 +138,12 @@
                                                              From="0" To="1" Duration="0:0:1"/>
                                         </Storyboard>
                                     </BeginStoryboard>
-                                </Trigger.ExitActions>
-                            </Trigger>
-                        </Style.Triggers>
+								</Trigger.ExitActions>
+							</Trigger>
+							<DataTrigger Binding="{Binding SelectedEvent}" Value="{x:Null}">
+								<Setter Property="Visibility" Value="Hidden"/>
+							</DataTrigger>
+						</Style.Triggers>
                     </Style>
                 </ListBox.Style>
             </ListBox>

@@ -14,6 +14,11 @@ namespace VisualInspector.ViewModels
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		public event EventHandler SelectionChanged;
+		public RoomViewModel(int number)
+		{
+			Number = number;
+			Events = new ObservableNotifiableCollection<EventViewModel>();
+		}
 
         public ObservableNotifiableCollection<EventViewModel> Events
         {
@@ -34,12 +39,6 @@ namespace VisualInspector.ViewModels
 					OnSelectionChanged();
 				}
 		}
-
-        public RoomViewModel(int number)
-        {
-            Number = number;
-            Events = new ObservableNotifiableCollection<EventViewModel>();
-        }
 
 		private void OnSelectionChanged()
 		{

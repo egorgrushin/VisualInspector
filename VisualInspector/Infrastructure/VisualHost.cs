@@ -21,30 +21,29 @@ namespace VisualInspector.Infrastructure
 
         protected Dictionary<EventViewModel, DrawingVisual> visualDictionary;
 
-        protected Dictionary<int, DrawingVisual> visualIndexator;
-
         public VisualHost()
         {
             visuals = new List<DrawingVisual>();
             visualDictionary = new Dictionary<EventViewModel, DrawingVisual>();
-            visualIndexator = new Dictionary<int, DrawingVisual>();
             hits = new List<DrawingVisual>();
         }
-
-       
-
+		
+		#region Override methods for render visuals
+		protected override HitTestResult HitTestCore(PointHitTestParameters hitTestParameters)
+		{
+			return new PointHitTestResult(this, hitTestParameters.HitPoint);
+		}    
+        protected override int VisualChildrenCount
+        {
+            get { return visuals.Count; }
+        }
         protected override Visual GetVisualChild(int index)
         {
             if (index < 0 || index >= visuals.Count)
                 throw new ArgumentOutOfRangeException();
             return visuals[index];
         }
-
-        protected override int VisualChildrenCount
-        {
-            get { return visuals.Count; }
-        }
-
+		#endregion
 
         public void AddVisual(DrawingVisual visual)
         {

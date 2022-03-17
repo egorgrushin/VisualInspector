@@ -13,19 +13,17 @@ namespace VisualInspector.Infrastructure.ServerPart
 {
     class ClientMsgEventArgs : EventArgs
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
-
         public string Message { get; set; }
         public ClientMsgEventArgs(string message)
         {
             Message = message;
         }
-
     }
 
-
     class TcpServer
-    {
+	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
         TcpListener server = null;
 
         private SynchronizationContext synchContext;
@@ -34,15 +32,13 @@ namespace VisualInspector.Infrastructure.ServerPart
 
         private bool isRunning;
 
-
-        public delegate void ClientMsgEventHandler(object sender, ClientMsgEventArgs e);
-
-        public event ClientMsgEventHandler MessageRecieved;
+        public event EventHandler<ClientMsgEventArgs> MessageRecieved;
 
         private void OnMessageRecieved(string message)
         {
-            if (MessageRecieved != null)
-                MessageRecieved(this, new ClientMsgEventArgs(message));
+			var handler = MessageRecieved;
+			if(handler != null)
+				handler(this, new ClientMsgEventArgs(message));
         }
 
         public TcpServer(SynchronizationContext context)
@@ -53,14 +49,15 @@ namespace VisualInspector.Infrastructure.ServerPart
         }
         public void Stop()
         {
+			logger.Info("TcpListener has been stopped");
             isRunning = false;
             server.Stop();
         }
 
         public void Start()
-        {
+		{
             try
-            {
+			{
                 isRunning = true;
                 var maxThreadsCount = Environment.ProcessorCount * 2;
                 ThreadPool.SetMaxThreads(maxThreadsCount, maxThreadsCount);
@@ -69,6 +66,7 @@ namespace VisualInspector.Infrastructure.ServerPart
                 var localAddr = IPAddress.Parse("0.0.0.0");
                 server = new TcpListener(localAddr, port);
                 server.Start();
+				logger.Info("TcpListener has been started");
                 int counter = 0;
                 while (isRunning)
                 {
@@ -77,9 +75,9 @@ namespace VisualInspector.Infrastructure.ServerPart
                 }
             }
             catch (SocketException ex)
-            {
-                if(isRunning)
-                    MessageBox.Show(string.Format("SocketException: {0}", ex));
+			{
+				//TODO try to start server again in case of error
+				logger.Error("Error in TcpListener has occured: {0}", ex.Message);
             }
         }
 

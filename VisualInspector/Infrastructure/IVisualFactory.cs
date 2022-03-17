@@ -10,18 +10,27 @@ namespace VisualInspector.Infrastructure
 {
     public interface IVisualFactory<T> where T : ViewModel
     {
-        DrawingVisual Create(T viewModel, DrawingVisual canvas, Rect rect);
-
+		/// <summary>
+		/// Drawing on visual from event info
+		/// </summary>
+		/// <param name="viewModel">Event</param>
+		/// <param name="canvas">Visual to draw on</param>
+        void Create(T viewModel, DrawingVisual canvas);
 
 		/// <summary>
 		/// Toggle visual for selection(selected or not)
 		/// </summary>
-		/// <param name="viewModel">model of the visual, for future params</param>
-		/// <param name="canvas">visual itself</param>
+		/// <param name="viewModel">Event</param>
+		/// <param name="canvas">Visual to draw on</param>
 		/// <param name="toggleState">true - selected, false - unselected</param>
-		/// <returns></returns>
-        DrawingVisual Toggle(T viewModel, DrawingVisual canvas, bool toggleState);
+        void Toggle(T viewModel, DrawingVisual canvas, bool toggleState);
 
-        void Mark(ViewModels.EventViewModel eventViewModel, DrawingVisual visual, bool p);
+		/// <summary>
+		/// Mark a visual for mouse hover event
+		/// </summary>
+		/// <param name="viewModel">Event</param>
+		/// <param name="canvas">Visual to draw on</param>
+		/// <param name="markState">true - hovered, false - unhovered</param>
+        void Mark(ViewModels.EventViewModel eventViewModel, DrawingVisual visual, bool markState);
     }
 }

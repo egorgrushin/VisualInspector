@@ -19,52 +19,40 @@ namespace VisualInspector.ViewModels
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public Guid Id { get; set; }
-
         private readonly Event eventModel;
         private readonly IVisualFactory<EventViewModel> visualFactory;
-        
+        public WarningLevels WarningLevel { get { return eventModel.WarningLevel; } }
+
+		public EventViewModel(Event eventModel, IVisualFactory<EventViewModel> visualFactory)
+		{
+			this.eventModel = eventModel;
+			this.visualFactory = visualFactory;
+		}
 
         public string VideoFileName
         {
             get { return eventModel.VideoFileName; }
         }
-
 		public List<BitmapImage> InitFramesList(object sender, DoWorkEventArgs e)
         {
             return eventModel.InitFramesList(sender, e);
         }
-        public EventViewModel(Event eventModel, IVisualFactory<EventViewModel> visualFactory)
-        {
-            this.eventModel = eventModel;
-            this.visualFactory = visualFactory;
-            Id = Guid.NewGuid();
-        }
-        public DrawingVisual GetVisual(DrawingVisual canvas, Rect rect)
-        {
-            return visualFactory.Create(this, canvas, rect);
-        }
 
-        public WarningLevels GetWarningLevel()
+		#region Working vith visuals
+        public void DrawVisual(DrawingVisual canvas)
         {
-            return eventModel.WarningLevel;
+            visualFactory.Create(this, canvas);
         }
-
-        /// <summary>
-        /// Toggle visual for selection(selected or not)
-        /// </summary>
-        /// <param name="oldVisual">Visual to toggle</param>
-        /// <param name="toggleState">true - selected, false - unselected</param>
-        /// <returns>Toggled visual, but it toggling anyway</returns>
-        public DrawingVisual ToggleVisual(DrawingVisual oldVisual, bool toggleState)
+        public void ToggleVisual(DrawingVisual oldVisual, bool toggleState)
         {
-            return visualFactory.Toggle(this, oldVisual, toggleState);
+            visualFactory.Toggle(this, oldVisual, toggleState);
         }
-
         internal void MarkSelected(DrawingVisual visual, bool p)
         {
             visualFactory.Mark(this, visual, p);
         }
+		#endregion
+
         public override string ToString()
         {
             return eventModel.ToString();

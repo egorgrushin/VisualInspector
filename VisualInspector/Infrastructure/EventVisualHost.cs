@@ -17,6 +17,7 @@ namespace VisualInspector.Infrastructure
     public class EventVisualHost : VisualHost
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		public static int GapWidth{ get{ return 2; } }
 
         private Dictionary<WarningLevels, bool> filterDictionary = new Dictionary<WarningLevels, bool>()
         {
@@ -26,19 +27,45 @@ namespace VisualInspector.Infrastructure
         };
 
         private int countOfVisibleItems;
-        public IEnumerable ItemsSource
+
+		#region Constructors and initialisation
+		public EventVisualHost()
+		{
+			Width = 1000;
+			HorizontalAlignment = HorizontalAlignment.Stretch;
+			Height = EventVisualFactory.VisualSize + GapWidth;
+			MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
+		}
+		private void Initialize()
+		{
+			Clear();
+			AddVisualChildrens(ItemsSource);
+		}
+		private void Clear()
+		{
+			countOfVisibleItems = 0;
+			visuals.Clear();
+			visualDictionary.Clear();
+		}
+		protected override void OnRender(DrawingContext drawingContext)
+		{
+			base.OnRender(drawingContext);
+			var rect = new Rect(0, 0, Width + 100, Height + 100);
+			drawingContext.DrawRectangle(Brushes.Transparent, null, rect);
+		}
+		#endregion
+
+		#region DependencyProperties
+		public IEnumerable ItemsSource
         {
             get { return (IEnumerable)GetValue(ItemsSourceProperty); }
             set { SetValue(ItemsSourceProperty, value); }
         }
 
-
-        // Using a DependencyProperty as the backing store for ItemsSource.  This enables animation, styling, binding, etc...
+		// Using a DependencyProperty as the backing store for ItemsSource.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(EventVisualHost),
             new PropertyMetadata(OnItemSourceChanged));
-
-
 
         public EventViewModel SelectedItem
         {
@@ -46,7 +73,9 @@ namespace VisualInspector.Infrastructure
             set { SetValue(SelectedItemProperty, value); }
         }
 
-
+		// Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty SelectedItemProperty =
+            DependencyProperty.Register("SelectedItem", typeof(EventViewModel), typeof(EventVisualHost), new FrameworkPropertyMetadata(null, OnSelectedItemChanged));
 
         public bool HighFilter
         {
@@ -58,7 +87,6 @@ namespace VisualInspector.Infrastructure
         public static readonly DependencyProperty HighFilterProperty =
             DependencyProperty.Register("HighFilter", typeof(bool), typeof(EventVisualHost), new PropertyMetadata(true, OnAnyFilterChanged));
 
-
         public bool MiddleFilter
         {
             get { return (bool)GetValue(MiddleFilterProperty); }
@@ -68,9 +96,6 @@ namespace VisualInspector.Infrastructure
         // Using a DependencyProperty as the backing store for MiddleFilter.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MiddleFilterProperty =
             DependencyProperty.Register("MiddleFilter", typeof(bool), typeof(EventVisualHost), new PropertyMetadata(true, OnAnyFilterChanged));
-
-
-
 
         public bool NormalFilter
         {
@@ -82,10 +107,15 @@ namespace VisualInspector.Infrastructure
         public static readonly DependencyProperty NormalFilterProperty =
             DependencyProperty.Register("NormalFilter", typeof(bool), typeof(EventVisualHost), new PropertyMetadata(true, OnAnyFilterChanged));
 
+		#endregion
 
-        private static void OnAnyFilterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		#region Callbacks
+		/// <summary>
+		/// Static method for callback of filters to call a method of current control
+		/// </summary>
+        private static void OnAnyFilterChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-            (d as EventVisualHost).OnAnyFilterChanged(e);
+            (sender as EventVisualHost).OnAnyFilterChanged(e);
         }
 
         private void OnAnyFilterChanged(DependencyPropertyChangedEventArgs e)
@@ -104,10 +134,77 @@ namespace VisualInspector.Infrastructure
             }
             if ((bool)e.NewValue != (bool)e.OldValue)
                 ApplyFilters(currentWarningLevel);
-            //EraseAllVisuals();
-            // Redraw();
-        }
+		}
 
+		/// <summary>
+		/// Static method for callback of source to call a method of current control
+		/// </summary>
+		private static void OnItemSourceChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+		{
+			(sender as EventVisualHost).OnItemSourceChanged(e);
+		}
+		private void OnItemSourceChanged(DependencyPropertyChangedEventArgs e)
+		{
+			if(e.OldValue != null)
+			{
+				var models = e.OldValue as ObservableNotifiableCollection<EventViewModel>;
+				models.CollectionCleared -= OnCollectionCleared;
+				models.CollectionChanged -= OnCollectionChanged;
+			}
+
+			if(e.NewValue != null)
+			{
+				var models = e.NewValue as ObservableNotifiableCollection<EventViewModel>;
+				models.CollectionCleared += OnCollectionCleared;
+				models.CollectionChanged += OnCollectionChanged;
+				Initialize();
+			}
+			else
+			{
+				Clear();
+			}
+		}
+		/// <summary>
+		/// Static method for callback of items to call a method of current control
+		/// </summary>
+		private static void OnSelectedItemChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+		{
+			(sender as EventVisualHost).OnSelectedItemChanged(e);
+		}
+
+		private void OnSelectedItemChanged(DependencyPropertyChangedEventArgs e)
+		{
+			var oldModel = e.OldValue as EventViewModel;
+			if(SelectedItem == null)
+			{
+				oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
+			}
+			else
+			{
+				if(oldModel != null)
+				{
+					oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
+				}
+				SelectedItem.ToggleVisual(visualDictionary[(SelectedItem)], true);
+			}
+		}
+		#endregion
+
+		private void SetOffset(DrawingVisual visual, int index)
+		{
+			visual.Offset = new Vector(index * (EventVisualFactory.VisualSize + GapWidth), 0);
+		}
+		private void SetOffset(DrawingVisual visual, int index, bool visible)
+		{
+			if(visible)
+			{
+				SetOffset(visual, index);
+			}
+			else
+			{
+				visual.Offset = new Vector(-visual.Offset.X - EventVisualFactory.VisualSize , 0);
+			}
+		}
         private void ApplyFilters(WarningLevels currentWarningLevel)
         {
             countOfVisibleItems = 0;
@@ -115,102 +212,24 @@ namespace VisualInspector.Infrastructure
             {
                 foreach (var item in ItemsSource)
                 {
-                    var eventViewModel = item as EventViewModel;
-                    if (eventViewModel != null)
+					var model = item as EventViewModel;
+					if(model != null)
                     {
-                        var visual = FindVisualForModel(eventViewModel);
-                        if (filterDictionary[eventViewModel.GetWarningLevel()])
+						var visual = FindVisualForModel(model);
+						var warningLevelVisibility = filterDictionary[model.GetWarningLevel()];
+                        if (warningLevelVisibility)
                         {
-
-                            SetOffset(visual, countOfVisibleItems);
                             countOfVisibleItems++;
                         }
-                        else
-                        {
-                            SetOffset(visual, -9999);
-                        }
+                        SetOffset(visual, countOfVisibleItems, warningLevelVisibility);
                     }
                 }
             }
-            Width = countOfVisibleItems * (itemSize.Width + gapWidth);
+			Width = countOfVisibleItems * (EventVisualFactory.VisualSize + GapWidth);
         }
-
-        private void SetOffset(DrawingVisual visual, int offset)
-        {
-            visual.Offset = new Vector(offset * (itemSize.Width + gapWidth), 0);
-        }
-
-
-        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty SelectedItemProperty =
-            DependencyProperty.Register("SelectedItem", typeof(EventViewModel), typeof(EventVisualHost), new FrameworkPropertyMetadata(null, OnSelectedItemChanged));
-
-        private static void OnSelectedItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as EventVisualHost).OnSelectedItemChanged(e);
-        }
-
-        private void OnSelectedItemChanged(DependencyPropertyChangedEventArgs e)
-        {
-            var oldModel = e.OldValue as EventViewModel;
-            if (SelectedItem == null)
-            {
-                oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
-            }
-            else
-            {
-                if (oldModel != null)
-                {
-                    oldModel.ToggleVisual(visualDictionary[(oldModel)], false);
-                }
-                SelectedItem.ToggleVisual(visualDictionary[(SelectedItem)], true);
-            }
-        }
-
-
-
-
-
-        private Size itemSize;
-        private int gapWidth;
-        private DrawingVisual lastMarkedVisual;
-
-        public EventVisualHost()
-        {
-            itemSize = new Size(16, 16);
-            Width = 1000;
-            gapWidth = 1;
-            Height = itemSize.Height + gapWidth;
-            MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
-            //MouseMove += EventVisualHost_MouseMove;
-        }
-
-        void EventVisualHost_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            if (lastMarkedVisual != null)
-            {
-                var model = visualDictionary.FirstOrDefault((x) => x.Value == lastMarkedVisual).Key;
-                model.MarkSelected(lastMarkedVisual, false);
-            }
-            var visual = GetVisual(e.GetPosition(this));
-            if (visual != null)
-            {
-                var model = visualDictionary.FirstOrDefault((x) => x.Value == visual).Key;
-                model.MarkSelected(visual, true);
-                lastMarkedVisual = visual;
-            }
-        }
-
-
-        /// <summary>
-        /// Selection realisation
-        /// </summary>
-        /// 
-        protected override HitTestResult HitTestCore(PointHitTestParameters hitTestParameters)
-        {
-            return new PointHitTestResult(this, hitTestParameters.HitPoint);
-        }
-        void EventVisualHost_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        
+		#region Selection realisation
+		void EventVisualHost_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             var visual = GetVisual(e.GetPosition(this));
             if (visual == null)
@@ -229,54 +248,19 @@ namespace VisualInspector.Infrastructure
             }
         }
 
-
-        private static void OnItemSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private DrawingVisual FindVisualForModel(EventViewModel model)
+		{
+			DrawingVisual visual = null;
+			if(visualDictionary.ContainsKey(model))
+				visual = visualDictionary[model];
+			return visual;
+		}
+		#endregion
+        
+		#region Adding and removing visuals
+		private void CreateVisualFromModel(EventViewModel model, DrawingVisual canvas)
         {
-            (d as EventVisualHost).OnItemSourceChanged(e);
-        }
-
-        private void OnItemSourceChanged(DependencyPropertyChangedEventArgs e)
-        {
-            if (e.OldValue != null)
-            {
-                var models = e.OldValue as ObservableNotifiableCollection<EventViewModel>;
-                models.CollectionCleared -= OnCollectionCleared;
-                models.CollectionChanged -= OnCollectionChanged;
-                models.ItemPropertyChanged -= OnItemPropertyChanged;
-            }
-
-            if (e.NewValue != null)
-            {
-                var models = e.NewValue as ObservableNotifiableCollection<EventViewModel>;
-                models.CollectionCleared += OnCollectionCleared;
-                models.CollectionChanged += OnCollectionChanged;
-                models.ItemPropertyChanged += OnItemPropertyChanged;
-                Initialize();
-            }
-            else
-            {
-                Clear();
-            }
-
-        }
-
-        private void Initialize()
-        {
-            Clear();
-            AddVisualChildrens(ItemsSource);
-        }
-
-
-        private void Clear()
-        {
-            countOfVisibleItems = 0;
-            visuals.Clear();
-            visualDictionary.Clear();
-        }
-
-        private DrawingVisual CreateVisualFromModel(EventViewModel model, DrawingVisual canvas, Rect rect)
-        {
-            return model.GetVisual(canvas, rect);
+            model.DrawVisual(canvas);
         }
 
         private void RemoveVisualChildren(IEnumerable models)
@@ -296,24 +280,6 @@ namespace VisualInspector.Infrastructure
             }
         }
 
-        private DrawingVisual FindVisualForModel(EventViewModel model)
-        {
-            DrawingVisual visual = null;
-            if (visualDictionary.ContainsKey(model))
-                visual = visualDictionary[model];
-            return visual;
-        }
-        private void OnItemPropertyChanged(object sender, ItemPropertyChangedEventArgs args)
-        {
-            var model = args.Item as EventViewModel;
-            if (model == null)
-                throw new ArgumentException("args.Item was expected to be of type EventViewModel but was not.");
-            var visual = FindVisualForModel(model);
-            var index = visualIndexator.FirstOrDefault(x => x.Value == visual).Key;
-            var rect = new Rect(index * (itemSize.Width + gapWidth), 0, itemSize.Width, itemSize.Height);
-            model.ToggleVisual(visual, true);
-        }
-
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
             if (args.OldItems != null)
@@ -323,16 +289,19 @@ namespace VisualInspector.Infrastructure
             {
                 AddVisualChildrens(args.NewItems);
             }
-            //Redraw();
         }
+		private void OnCollectionCleared(object sender, EventArgs e)
+		{
+			Clear();
+		}
 
-        private void ExtendWidth()
-        {
-            if (double.IsNaN(Width))
-                Width = countOfVisibleItems * (itemSize.Width + gapWidth);
-            if (Width <= countOfVisibleItems * (itemSize.Width + gapWidth))
-                Width += 1000;
-        }
+		private void ExtendWidth()
+		{
+			if(double.IsNaN(Width))
+				Width = countOfVisibleItems * (EventVisualFactory.VisualSize + GapWidth);
+			if(Width <= countOfVisibleItems * (EventVisualFactory.VisualSize + GapWidth))
+				Width += 1000;
+		}
 
         private void AddVisualChildrens(IEnumerable models)
         {
@@ -345,16 +314,13 @@ namespace VisualInspector.Infrastructure
                     if (visual == null)
                     {
                         visual = new DrawingVisual();
-                        CreateVisualFromModel(model, visual, new Rect(new Point(0, 0), itemSize));
-                        if (filterDictionary[model.GetWarningLevel()])
-                        {
-                            SetOffset(visual, countOfVisibleItems);
-                            countOfVisibleItems++;
-                        }
-                        else
-                        {
-                            SetOffset(visual, -9999);
-                        }
+						CreateVisualFromModel(model, visual);
+						var warningLevelVisibility = filterDictionary[model.GetWarningLevel()];
+						if(warningLevelVisibility)
+						{
+							countOfVisibleItems++;
+						}
+						SetOffset(visual, countOfVisibleItems, warningLevelVisibility);
                         AddVisual(visual);
                         visualDictionary.Add(model, visual);
                     }
@@ -362,37 +328,6 @@ namespace VisualInspector.Infrastructure
             }
             ExtendWidth();
         }
-
-
-        private void OnCollectionCleared(object sender, EventArgs e)
-        {
-            Clear();
-        }
-
-        private void EraseVisual(DrawingVisual visual)
-        {
-            var dc = visual.RenderOpen();
-            dc.Close();
-        }
-        private void EraseAllVisuals()
-        {
-            foreach (var item in visualIndexator.Values)
-            {
-                EraseVisual(item);
-            }
-        }
-
-
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-            base.OnRender(drawingContext);
-            var rect = new Rect(0, 0, Width + 100, Height + 100);
-            drawingContext.DrawRectangle(Brushes.Transparent, null, rect);
-        }
-
-
-
-
-
+		#endregion
     }
 }

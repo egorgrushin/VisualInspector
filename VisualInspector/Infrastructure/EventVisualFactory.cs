@@ -14,60 +14,65 @@ namespace VisualInspector.Infrastructure
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
+		public static int VisualSize { get { return 16;	} }
+
         private readonly IDictionary<string, Pen> pens;
         private readonly IDictionary<string, Brush> brushes;
+		private readonly Size itemSize;
 
-        public EventVisualFactory(IDictionary<string, Pen> pens, IDictionary<string, Brush> brushes)
+        public EventVisualFactory(IDictionary<string, Pen> argPens, IDictionary<string, Brush> argBrushes)
         {
-            this.pens = pens;
-            this.brushes = brushes;
+            pens = argPens;
+            brushes = argBrushes;
+			itemSize = new Size(VisualSize, VisualSize);
         }
 
-
-        public DrawingVisual Create(EventViewModel viewModel, DrawingVisual canvas, Rect rect)
+        public void Create(EventViewModel viewModel, DrawingVisual canvas)
         {
             using (var context = canvas.RenderOpen())
-            {
-                Brush brush = brushes[viewModel.GetWarningLevel().ToString()];
-                context.DrawRectangle(Brushes.Black, null, rect);
-                var rect2 = new Rect(new Point(rect.Location.X + 1, rect.Location.Y + 1),
-                    new Size(rect.Size.Width - 2, rect.Size.Height - 2));
-                context.DrawRectangle(brush, null, rect2);
-                
+			{
+				var rectBorder = new Rect(new Point(0, 0), itemSize);
+                Brush brush = brushes[viewModel.WarningLevel.ToString()];
+                context.DrawRectangle(Brushes.Black, null, rectBorder);
+
+                var rectContent = new Rect(new Point(rectBorder.Location.X + 1, rectBorder.Location.Y + 1),
+                    new Size(rectBorder.Size.Width - 2, rectBorder.Size.Height - 2));
+                context.DrawRectangle(brush, null, rectContent);
             }
-            return canvas;
         }
-        public DrawingVisual Toggle(EventViewModel viewModel, DrawingVisual canvas, bool toggleState)
+
+		//TODO add method for getting a rect
+        public void Toggle(EventViewModel viewModel, DrawingVisual canvas, bool toggleState)
         {
             using (var context = canvas.RenderOpen())
             {
-				var rect = canvas.ContentBounds;
+				var rectBorder = canvas.ContentBounds;
 				context.DrawRectangle(Brushes.Black, null, canvas.ContentBounds);
-                var rect2 = new Rect(new Point(rect.Location.X + 1, rect.Location.Y + 1),
-                    new Size(rect.Size.Width - 2, rect.Size.Height - 2));
-                var brushOriginal = brushes[viewModel.GetWarningLevel().ToString()];
+                var rectContent = new Rect(new Point(rectBorder.Location.X + 1, rectBorder.Location.Y + 1),
+                    new Size(rectBorder.Size.Width - 2, rectBorder.Size.Height - 2));
+                var brushOriginal = brushes[viewModel.WarningLevel.ToString()];
                 var brushToToggle = new SolidColorBrush(Colors.Black);
                 brushToToggle.Opacity = toggleState ? 0.35 : 0.0;
-                context.DrawRectangle(brushOriginal, null, rect2);
-				context.DrawRectangle(brushToToggle, null, rect2);
+                context.DrawRectangle(brushOriginal, null, rectContent);
+				context.DrawRectangle(brushToToggle, null, rectContent);
             }
-            return canvas;
         }
 
 
-        public void Mark(EventViewModel eventViewModel, DrawingVisual visual, bool p)
+        public void Mark(EventViewModel eventViewModel, DrawingVisual visual, bool markState)
         {
             using (var context = visual.RenderOpen())
             {
-                var rect = visual.ContentBounds;
+                var rectBorder = visual.ContentBounds;
                 context.DrawRectangle(Brushes.Black, null, visual.ContentBounds);
-                var rect2 = new Rect(new Point(rect.Location.X + 1, rect.Location.Y + 1),
-                    new Size(rect.Size.Width - 2, rect.Size.Height - 2));
-                var brushOriginal = brushes[eventViewModel.GetWarningLevel().ToString()];
+                var rectContent = new Rect(new Point(rectBorder.Location.X + 1, rectBorder.Location.Y + 1),
+                    new Size(rectBorder.Size.Width - 2, rectBorder.Size.Height - 2));
+
+                var brushOriginal = brushes[eventViewModel.WarningLevel.ToString()];
                 var brushToToggle = new SolidColorBrush(Colors.Green);
-                brushToToggle.Opacity = p ? 0.35 : 0.0;
-                context.DrawRectangle(brushOriginal, null, rect2);
-                context.DrawRectangle(brushToToggle, null, rect2);
+                brushToToggle.Opacity = markState ? 0.35 : 0.0;
+                context.DrawRectangle(brushOriginal, null, rectContent);
+                context.DrawRectangle(brushToToggle, null, rectContent);
             }
         }
     }
