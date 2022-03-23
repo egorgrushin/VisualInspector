@@ -32,7 +32,7 @@ namespace VisualInspector.Infrastructure
 		public EventVisualHost()
 		{
 			Width = 1000;
-			HorizontalAlignment = HorizontalAlignment.Stretch;
+			ClipToBounds = true;
 			Height = EventVisualFactory.VisualSize + GapWidth;
 			MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
 		}
@@ -128,7 +128,7 @@ namespace VisualInspector.Infrastructure
             var currentWarningLevel = dict[e.Property.Name];
 
             filterDictionary[currentWarningLevel] = (bool)e.NewValue;
-            if (SelectedItem != null && SelectedItem.GetWarningLevel() == currentWarningLevel)
+            if (SelectedItem != null && SelectedItem.WarningLevel == currentWarningLevel)
             {
                 SelectedItem = null;
             }
@@ -202,7 +202,8 @@ namespace VisualInspector.Infrastructure
 			}
 			else
 			{
-				visual.Offset = new Vector(-visual.Offset.X - EventVisualFactory.VisualSize , 0);
+				//SetOffset(visual, -9999);
+				visual.Offset = new Vector(-visual.Offset.X - EventVisualFactory.VisualSize, 0);
 			}
 		}
         private void ApplyFilters(WarningLevels currentWarningLevel)
@@ -216,12 +217,12 @@ namespace VisualInspector.Infrastructure
 					if(model != null)
                     {
 						var visual = FindVisualForModel(model);
-						var warningLevelVisibility = filterDictionary[model.GetWarningLevel()];
+						var warningLevelVisibility = filterDictionary[model.WarningLevel];
+						SetOffset(visual, countOfVisibleItems, warningLevelVisibility);
                         if (warningLevelVisibility)
                         {
                             countOfVisibleItems++;
                         }
-                        SetOffset(visual, countOfVisibleItems, warningLevelVisibility);
                     }
                 }
             }
@@ -315,12 +316,12 @@ namespace VisualInspector.Infrastructure
                     {
                         visual = new DrawingVisual();
 						CreateVisualFromModel(model, visual);
-						var warningLevelVisibility = filterDictionary[model.GetWarningLevel()];
+						var warningLevelVisibility = filterDictionary[model.WarningLevel];
+						SetOffset(visual, countOfVisibleItems, warningLevelVisibility);
 						if(warningLevelVisibility)
 						{
 							countOfVisibleItems++;
 						}
-						SetOffset(visual, countOfVisibleItems, warningLevelVisibility);
                         AddVisual(visual);
                         visualDictionary.Add(model, visual);
                     }

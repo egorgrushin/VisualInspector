@@ -107,16 +107,15 @@ namespace VisualInspector.Models
 			return framesList;
 		}
 		
-		public WarningLevels ParseWarningLevel(Random rd)
+		public void ParseWarningLevel(int toss)
 		{
-			WarningLevels result = WarningLevels.Normal;
-			var toss = rd.Next(201);
+			var result = WarningLevels.Normal;
 			if(toss == 200)
 				result = WarningLevels.High;
 			else if(toss >= 186)
 				result = WarningLevels.Middle;
 			//result = (WarningLevels)Enum.GetValues(typeof(WarningLevels)).GetValue(rd.Next(Enum.GetValues(typeof(WarningLevels)).GetLength(0)));
-			return result;
+			WarningLevel = result;
 		}
 
 		public override string ToString()

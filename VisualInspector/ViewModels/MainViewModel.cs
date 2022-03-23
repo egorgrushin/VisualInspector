@@ -244,7 +244,7 @@ namespace VisualInspector.ViewModels
 				var newMsg = GenerateRandomMsg();
 				var newEvent = Proceed(newMsg);
 				newEvent.VideoFileName = DateTime.Now.Second % 2 == 0 ? "test1.mp4" : "test1.mp4";
-				newEvent.ParseWarningLevel(rd);
+				newEvent.ParseWarningLevel(rd.Next(201));
 				context.Send(delegate
 					{
 						Rooms[newEvent.Room].Events.Add(new EventViewModel(newEvent, visualFactory));
