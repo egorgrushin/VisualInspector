@@ -202,8 +202,10 @@ namespace VisualInspector.Infrastructure
 			}
 			else
 			{
-				//SetOffset(visual, -9999);
-				visual.Offset = new Vector(-visual.Offset.X - EventVisualFactory.VisualSize, 0);
+				if(visual.Offset.X >= 0)
+				{
+					visual.Offset = new Vector(-visual.Offset.X - EventVisualFactory.VisualSize, 0);
+				}
 			}
 		}
         private void ApplyFilters(WarningLevels currentWarningLevel)
