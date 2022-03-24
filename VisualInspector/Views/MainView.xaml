@@ -7,6 +7,9 @@
         xmlns:converters ="clr-namespace:VisualInspector.Infrastructure.Converters"
         Title="MainView" WindowState="Maximized" WindowStartupLocation="CenterScreen"
         UseLayoutRounding="True">
+    <Window.Resources>
+        <converters:AdaptingWidthListBoxItemConverter x:Key="adaptingWidthListBoxItemConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -92,7 +95,7 @@
             </ListBox.ItemContainerStyle>
         </ListBox>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" Height="150">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Style.Triggers>
@@ -103,29 +106,50 @@
                 </Style>
             </Grid.Style>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Row="2" Text="{Binding SelectedEvent}" Padding="10" Margin="10"/>
-            <Button Content="Show videofragment" Command="{Binding ShowVideoCommand}" Grid.Column="1" HorizontalAlignment="Right"/>
+            <Border BorderBrush="LightGray" BorderThickness="1"  Margin="10 0 10 10">
+                <DockPanel Grid.Row="2">
+                    <TextBlock  Text="{Binding SelectedEvent}" DockPanel.Dock="Top" Margin="10 0 0 0"/>
+                    <Button Content="Show videofragment" 
+                    Command="{Binding ShowVideoCommand}"
+                    DockPanel.Dock="Bottom" Margin="10"/>
+                </DockPanel>
+            </Border>
             <ListBox ItemsSource="{Binding SelectedFrameList, IsAsync=True}" Grid.Column="2"
-                     
-                     HorizontalAlignment="Stretch">
+                     x:Name="listBoxFrames"
+                     Margin="0 0 10 10"  BorderThickness="1" BorderBrush="LightGray" 
+                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>	
+                </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Image Source="{Binding}" Margin="2">
-                            <Image.LayoutTransform>
+                        <Image Source="{Binding}" Margin="2 0 2 0">
+                            <!--<Image.LayoutTransform>
                                 <ScaleTransform ScaleX="0.25" ScaleY="0.25"/>
-                            </Image.LayoutTransform>
+                            </Image.LayoutTransform>-->
                         </Image>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem" >
+                                    <ContentPresenter Width="{Binding ElementName=listBoxFrames, Converter={StaticResource adaptingWidthListBoxItemConverter}}"/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.Style>
                     <Style TargetType="ListBox">
                         <Style.Triggers>
@@ -138,12 +162,12 @@
                                                              From="0" To="1" Duration="0:0:1"/>
                                         </Storyboard>
                                     </BeginStoryboard>
-								</Trigger.ExitActions>
-							</Trigger>
-							<DataTrigger Binding="{Binding SelectedEvent}" Value="{x:Null}">
-								<Setter Property="Visibility" Value="Hidden"/>
-							</DataTrigger>
-						</Style.Triggers>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding SelectedEvent}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
                     </Style>
                 </ListBox.Style>
             </ListBox>
