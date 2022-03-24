@@ -2,6 +2,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using VisualInspector.Models;
@@ -16,6 +17,7 @@ using System.Windows.Media.Imaging;
 using VisualInspector.Views;
 using NLog;
 using System.ComponentModel;
+using VisualInspector.Infrastructure.DataBasePart;
 
 namespace VisualInspector.ViewModels
 {
@@ -40,34 +42,22 @@ namespace VisualInspector.ViewModels
 		Random rd;
 		private IVisualFactory<EventViewModel> visualFactory;
 		private TcpServer server;
+		private DataBaseConnector dataBaseConnection;
 		private bool selectionLock;
 		private RelayCommand showVideoCommand;
 		//Worker that was started by previous selection. Should be canceled to avoid massive SelectedFrameList assignment calls
 		private BackgroundWorker currentWorker;
-		public IEnumerable<string> EnumCol
-		{
-			get;
-			set;
-		}
+		public IEnumerable<string> EnumCol { get; set; }
 
 		public ObservableNotifiableCollection<RoomViewModel> Rooms
 		{
-			get
-			{
-				return Get(() => Rooms);
-			}
-			set
-			{
-				Set(() => Rooms, value);
-			}
+			get	{ return Get(() => Rooms); }
+			set	{ Set(() => Rooms, value); }
 		}
 
 		public EventViewModel SelectedEvent
 		{
-			get
-			{
-				return Get(() => SelectedEvent);
-			}
+			get	{ return Get(() => SelectedEvent); }
 			set
 			{
 				if(SelectedEvent != value)
@@ -106,14 +96,8 @@ namespace VisualInspector.ViewModels
 		}
 		public List<BitmapImage> SelectedFrameList
 		{
-			get
-			{
-				return Get(() => SelectedFrameList);
-			}
-			set
-			{
-				Set(() => SelectedFrameList, value);
-			}
+			get	{ return Get(() => SelectedFrameList); }
+			set	{ Set(() => SelectedFrameList, value); }
 		}
 
 		#endregion
@@ -136,6 +120,22 @@ namespace VisualInspector.ViewModels
 			visualFactory = new EventVisualFactory(pens, brushes);
 
 			InitRooms(30);
+
+			dataBaseConnection = new DataBaseConnector()
+			{
+				ShouldRead = false,
+				ShouldWrite = false
+			};
+			dataBaseConnection.TryConnect();
+
+			var eventsList = dataBaseConnection.ReadEventsByDate(DateTime.Now);
+			if(eventsList != null)
+			{
+				foreach(var ev in eventsList)
+				{
+					Rooms[ev.Room].Events.Add(new EventViewModel(ev, visualFactory));
+				}
+			}
 
 			var thread = new Thread(FillRooms);
 			thread.IsBackground = true;
@@ -243,11 +243,11 @@ namespace VisualInspector.ViewModels
 				var randomSleep = rd.Next(1, 30);
 				var newMsg = GenerateRandomMsg();
 				var newEvent = Proceed(newMsg);
-				newEvent.VideoFileName = DateTime.Now.Second % 2 == 0 ? "test1.mp4" : "test1.mp4";
 				newEvent.ParseWarningLevel(rd.Next(201));
 				context.Send(delegate
 					{
 						Rooms[newEvent.Room].Events.Add(new EventViewModel(newEvent, visualFactory));
+						dataBaseConnection.WriteEventToDB(newEvent);
 					}, null);
 
 				Thread.Sleep(randomSleep);

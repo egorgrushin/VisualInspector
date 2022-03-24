@@ -28,7 +28,6 @@ namespace VisualInspector.Models
 
         public static readonly int FramesForPreview = 5;
 
-
         #region Properties
         public Guid Id { get; set; }
         public WarningLevels WarningLevel { get; set; }
@@ -37,7 +36,13 @@ namespace VisualInspector.Models
         public int Room { get; set; }
         public DateTime DateTime { get; set; }
         public int AccessLevel { get; set; }
-        public string VideoFileName { get; set; }
+        public string VideoFileName 
+		{ 
+			get
+			{
+				return DateTime.Second % 2 == 0 ? "test1.mp4" : "test1.mp4";
+			}
+		}
 
         #endregion
 
@@ -126,7 +131,7 @@ namespace VisualInspector.Models
 				Enum.GetName(typeof(Sensors), Sensor),
 				Enum.GetName(typeof(AccessLevels), AccessLevel),
 				Room + 1,
-				string.Format("{0:dd.MM.yyyy hh:mm:ss}", DateTime));
+				DateTime);
 		}
     }
 }
