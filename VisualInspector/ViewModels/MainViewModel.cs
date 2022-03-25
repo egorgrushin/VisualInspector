@@ -87,7 +87,6 @@ namespace VisualInspector.ViewModels
 							SelectedFrameList = e.Result as List<BitmapImage>;
 						}
 					};
-					worker.WorkerReportsProgress = true;
 					worker.WorkerSupportsCancellation = true;
 					worker.RunWorkerAsync();
 					currentWorker = worker;

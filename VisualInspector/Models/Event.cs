@@ -91,7 +91,6 @@ namespace VisualInspector.Models
 							}
 						}
 						logger.Trace("InitFramesList for {0} now at step {1}", Id, i);
-						worker.ReportProgress((int)(((double)i / (double)framesCount) * 100d));
 						nextFrame.Dispose();
 					}
 					videoReader.Close();
@@ -107,7 +106,6 @@ namespace VisualInspector.Models
 				return null;
 			}
 
-			worker.ReportProgress(100);
 			logger.Debug("Successfully finished InitFramesList for {0}", Id);
 			return framesList;
 		}
