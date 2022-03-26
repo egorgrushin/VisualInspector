@@ -148,5 +148,27 @@ namespace VisualInspector.Infrastructure.DataBasePart
 				return null;
 			}
 		}
+
+		public List<Event> ReadEventsByDate(DateTime dateBegin, DateTime dateEnd)
+		{
+			if(dateBegin.Date == dateEnd.Date)
+			{
+				return ReadEventsByDate(dateBegin);
+			}
+
+			var dateSpan = dateEnd.AddDays(1) - dateBegin;
+			var result = new List<Event>();
+
+			for(int i = 0; i < dateSpan.Days; i++)
+			{
+				var oneDayEvents = ReadEventsByDate(dateBegin.AddDays(i));
+				if(oneDayEvents != null)
+				{
+					result.AddRange(oneDayEvents);
+				}
+			}
+
+			return result;
+		}
 	}
 }

@@ -16,11 +16,22 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Margin="10">
-            <ToggleButton Content="N" Margin="2" x:Name="normalFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forNormalBrush}" IsChecked="True" />
-            <ToggleButton Content="M" Margin="2" x:Name="middleFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forMiddleBrush}" IsChecked="True"/>
-            <ToggleButton Content="H" Margin="2" x:Name="highFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forHighBrush}" IsChecked="True"/>
-        </StackPanel>
+		<Grid Grid.Row="0" Margin="10, 10, 0, 0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
+			</Grid.ColumnDefinitions>
+			<StackPanel Grid.Column="0" Orientation="Horizontal" >
+				<ToggleButton Content="N" Margin="2" x:Name="normalFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forNormalBrush}" IsChecked="True" />
+				<ToggleButton Content="M" Margin="2" x:Name="middleFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forMiddleBrush}" IsChecked="True"/>
+				<ToggleButton Content="H" Margin="2" x:Name="highFilterToogleButton" Style="{StaticResource filterToggleButton}" Background="{StaticResource forHighBrush}" IsChecked="True"/>
+			</StackPanel>
+			<Label Content="Select data interval for displaying events:" HorizontalAlignment="Right" Grid.Column="1" />
+			<DatePicker Grid.Column="2" SelectedDate="{Binding SelectedDateBegin, Mode=TwoWay}" />
+			<DatePicker Grid.Column="3" SelectedDate="{Binding SelectedDateEnd, Mode=TwoWay}" />
+		</Grid>
 
         <ListBox Grid.Row="1" ItemsSource="{Binding Rooms, Mode=TwoWay}"  
                  Margin="10" ScrollViewer.HorizontalScrollBarVisibility="Visible" 
@@ -48,7 +59,7 @@
                                                         LineStackingStrategy="BlockLineHeight"
                                                         HorizontalAlignment="Center"
                                                         Text="{Binding Path=Content,
-                          RelativeSource={RelativeSource TemplatedParent}}" />
+														RelativeSource={RelativeSource TemplatedParent}}" />
                                                 </Border>
                                             </ControlTemplate>
                                         </Setter.Value>

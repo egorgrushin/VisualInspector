@@ -23,11 +23,7 @@ namespace VisualInspector.Views
         public MainView()
         {
             InitializeComponent();
-            DataContext = new ViewModels.MainViewModel();
-
+			DataContext = new ViewModels.MainViewModel();
         }
-
-
-
     }
 }

@@ -18,6 +18,7 @@ using VisualInspector.Views;
 using NLog;
 using System.ComponentModel;
 using VisualInspector.Infrastructure.DataBasePart;
+using System.Windows.Controls;
 
 namespace VisualInspector.ViewModels
 {
@@ -38,6 +39,8 @@ namespace VisualInspector.ViewModels
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
+		private static readonly int RoomsNumber = 30;
+
 		#region Properties & fields
 		Random rd;
 		private IVisualFactory<EventViewModel> visualFactory;
@@ -47,7 +50,6 @@ namespace VisualInspector.ViewModels
 		private RelayCommand showVideoCommand;
 		//Worker that was started by previous selection. Should be canceled to avoid massive SelectedFrameList assignment calls
 		private BackgroundWorker currentWorker;
-		public IEnumerable<string> EnumCol { get; set; }
 
 		public ObservableNotifiableCollection<RoomViewModel> Rooms
 		{
@@ -98,6 +100,25 @@ namespace VisualInspector.ViewModels
 			get	{ return Get(() => SelectedFrameList); }
 			set	{ Set(() => SelectedFrameList, value); }
 		}
+		
+		public DateTime SelectedDateBegin
+		{
+			get	{ return Get(() => SelectedDateBegin); }
+			set	
+			{ 
+				Set(() => SelectedDateBegin, value); 
+				ReloadEventsByDate();
+			}
+		}
+		public DateTime SelectedDateEnd
+		{
+			get	{ return Get(() => SelectedDateEnd); }
+			set	
+			{
+				Set(() => SelectedDateEnd, value);
+				ReloadEventsByDate(); 
+			}
+		}
 
 		#endregion
 
@@ -105,10 +126,6 @@ namespace VisualInspector.ViewModels
 		public MainViewModel()
 		{
 			rd = new Random();
-			Rooms = new ObservableNotifiableCollection<RoomViewModel>();
-			EnumCol = Enum.GetNames(typeof(WarningLevels));
-
-			SelectedEvent = null;
 			var pens = new Dictionary<string, Pen>() { { "Black", new Pen(Brushes.Black, 2) } };
 			var brushes = new Dictionary<string, Brush>()
             { 
@@ -118,8 +135,6 @@ namespace VisualInspector.ViewModels
             };
 			visualFactory = new EventVisualFactory(pens, brushes);
 
-			InitRooms(30);
-
 			dataBaseConnection = new DataBaseConnector()
 			{
 				ShouldRead = true,
@@ -127,23 +142,50 @@ namespace VisualInspector.ViewModels
 			};
 			dataBaseConnection.TryConnect();
 
-			var eventsList = dataBaseConnection.ReadEventsByDate(DateTime.Now);
+			InitRooms();
+			SelectedEvent = null;
+			SelectedDateBegin = DateTime.Now;
+			SelectedDateEnd = DateTime.Now;
+
+			//var thread = new Thread(FillRooms);
+			//thread.IsBackground = true;
+			//var context = SynchronizationContext.Current;
+			//thread.Start(context);
+		}
+		#endregion
+
+		#region Actions with events
+		/// <summary>
+		/// Adding event only as a visual, don't save it. Should be used for reloading events from database
+		/// </summary>
+		private void AddEventToVisualHost(Event eventToAdd)
+		{
+			Rooms[eventToAdd.Room].Events.Add(new EventViewModel(eventToAdd, visualFactory));
+		}
+		/// <summary>
+		/// Adding event to the application, saving all data to database. Should be used for new events from clients
+		/// </summary>
+		private void AddEventToApp(Event eventToAdd)
+		{
+			AddEventToVisualHost(eventToAdd);
+			dataBaseConnection.WriteEventToDB(eventToAdd);
+		}
+
+		public void ReloadEventsByDate()
+		{
+			InitRooms();
+			var eventsList = dataBaseConnection.ReadEventsByDate(SelectedDateBegin, SelectedDateEnd);
 			if(eventsList != null)
 			{
 				foreach(var ev in eventsList)
 				{
-					Rooms[ev.Room].Events.Add(new EventViewModel(ev, visualFactory));
+					AddEventToVisualHost(ev);
 				}
 			}
-
-			var thread = new Thread(FillRooms);
-			thread.IsBackground = true;
-			var context = SynchronizationContext.Current;
-			thread.Start(context);
 		}
 		#endregion
 
-		#region Commands
+		#region Commands 
 		public ICommand ShowVideoCommand
 		{
 			get
@@ -162,6 +204,7 @@ namespace VisualInspector.ViewModels
 			videoForm.DataContext = SelectedEvent;
 			videoForm.ShowDialog();
 		}
+
 		#endregion
 
 		#region Server part
@@ -206,12 +249,18 @@ namespace VisualInspector.ViewModels
 
 		private void InitRooms(int n)
 		{
+			Rooms = new ObservableNotifiableCollection<RoomViewModel>();
 			for(int i = 0; i < n; i++)
 			{
 				var roomViewModel = new RoomViewModel(i + 1);
 				roomViewModel.SelectionChanged += roomViewModel_SelectionChanged;
 				Rooms.Add(roomViewModel);
 			}
+		}
+
+		private void InitRooms()
+		{
+			InitRooms(RoomsNumber);
 		}
 
 		void roomViewModel_SelectionChanged(object sender, EventArgs e)
@@ -245,8 +294,7 @@ namespace VisualInspector.ViewModels
 				newEvent.ParseWarningLevel(rd.Next(201));
 				context.Send(delegate
 					{
-						Rooms[newEvent.Room].Events.Add(new EventViewModel(newEvent, visualFactory));
-						dataBaseConnection.WriteEventToDB(newEvent);
+						AddEventToApp(newEvent);
 					}, null);
 
 				Thread.Sleep(randomSleep);
