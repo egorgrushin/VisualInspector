@@ -80,7 +80,7 @@ namespace VisualInspector.Infrastructure.DataBasePart
 								sensor.ToString() + "', '" +
 								string.Format("{0:yyyy-MM-dd}", dateTime) + "', '" +
 								string.Format("{0:hh:mm:ss}", dateTime) + "', '" +
-								warningLevel + "')";
+								warningLevel.ToString() + "')";
 
 					var cmd = new MySqlCommand(sql, connection);
 					cmd.ExecuteNonQuery();

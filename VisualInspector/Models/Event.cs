@@ -103,7 +103,7 @@ namespace VisualInspector.Models
 			catch(VideoException ex)
 			{
 				logger.Warn("VideoException {0} occured while initialisig frames list for {1}", ex.Message, Id);
-				return null;
+				return InitFramesList(sender, e);
 			}
 
 			logger.Debug("Successfully finished InitFramesList for {0}", Id);

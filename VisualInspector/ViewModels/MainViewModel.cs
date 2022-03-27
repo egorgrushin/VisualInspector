@@ -122,7 +122,7 @@ namespace VisualInspector.ViewModels
 
 			dataBaseConnection = new DataBaseConnector()
 			{
-				ShouldRead = false,
+				ShouldRead = true,
 				ShouldWrite = false
 			};
 			dataBaseConnection.TryConnect();
