@@ -1,24 +1,17 @@
 ﻿using Foundation;
 using System;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
 using VisualInspector.Models;
 using System.Windows.Input;
 using VisualInspector.Infrastructure;
 using System.Windows.Media;
 using System.Threading;
-using System.Diagnostics;
-using System.Windows;
 using VisualInspector.Infrastructure.ServerPart;
 using System.Windows.Media.Imaging;
 using VisualInspector.Views;
 using NLog;
 using System.ComponentModel;
 using VisualInspector.Infrastructure.DataBasePart;
-using System.Windows.Controls;
 
 namespace VisualInspector.ViewModels
 {
@@ -138,7 +131,7 @@ namespace VisualInspector.ViewModels
 			dataBaseConnection = new DataBaseConnector()
 			{
 				ShouldRead = true,
-				ShouldWrite = false
+				ShouldWrite = true
 			};
 			dataBaseConnection.TryConnect();
 
@@ -147,10 +140,10 @@ namespace VisualInspector.ViewModels
 			SelectedDateBegin = DateTime.Now;
 			SelectedDateEnd = DateTime.Now;
 
-			//var thread = new Thread(FillRooms);
-			//thread.IsBackground = true;
-			//var context = SynchronizationContext.Current;
-			//thread.Start(context);
+            var thread = new Thread(FillRooms);
+            thread.IsBackground = true;
+            var context = SynchronizationContext.Current;
+            thread.Start(context);
 		}
 		#endregion
 
