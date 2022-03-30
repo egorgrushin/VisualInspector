@@ -173,8 +173,6 @@ namespace VisualInspector.Infrastructure.DataBasePart
             return result;
         }
 
-
-
         #region SqlCommands
 
         /// <summary>
@@ -259,8 +257,5 @@ namespace VisualInspector.Infrastructure.DataBasePart
             return cmd.ExecuteReader();
         }
         #endregion
-
-
-
     }
 }

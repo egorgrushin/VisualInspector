@@ -131,7 +131,7 @@ namespace VisualInspector.ViewModels
 			dataBaseConnection = new DataBaseConnector()
 			{
 				ShouldRead = true,
-				ShouldWrite = true
+				ShouldWrite = false
 			};
 			dataBaseConnection.TryConnect();
 
@@ -140,10 +140,10 @@ namespace VisualInspector.ViewModels
 			SelectedDateBegin = DateTime.Now;
 			SelectedDateEnd = DateTime.Now;
 
-            var thread = new Thread(FillRooms);
-            thread.IsBackground = true;
-            var context = SynchronizationContext.Current;
-            thread.Start(context);
+			var thread = new Thread(FillRooms);
+			thread.IsBackground = true;
+			var context = SynchronizationContext.Current;
+			thread.Start(context);
 		}
 		#endregion
 
@@ -153,7 +153,10 @@ namespace VisualInspector.ViewModels
 		/// </summary>
 		private void AddEventToVisualHost(Event eventToAdd)
 		{
-			Rooms[eventToAdd.Room].Events.Add(new EventViewModel(eventToAdd, visualFactory));
+			if(eventToAdd.DateTime.Date <= SelectedDateEnd && eventToAdd.DateTime >= SelectedDateBegin)
+			{
+				Rooms[eventToAdd.Room].Events.Add(new EventViewModel(eventToAdd, visualFactory));
+			}
 		}
 		/// <summary>
 		/// Adding event to the application, saving all data to database. Should be used for new events from clients
