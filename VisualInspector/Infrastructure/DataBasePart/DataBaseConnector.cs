@@ -7,6 +7,12 @@ using MySql.Data.MySqlClient;
 using VisualInspector.Models;
 using NLog;
 
+#region typedefs
+
+using AssociativeData = System.Collections.Generic.Dictionary<string, object>;
+
+#endregion
+
 namespace VisualInspector.Infrastructure.DataBasePart
 {
     public class DataBaseConnector
@@ -103,19 +109,26 @@ namespace VisualInspector.Infrastructure.DataBasePart
 
                 try
                 {
-                    //var sql = "SELECT `RoomNumber`, `Lock`, `AccessLevel`, `Sensor`, `Date`, `Time`, `WarningLevel` FROM `events`" +
-                    //    "WHERE Date = '" + string.Format("{0:yyyy-MM-dd}", date) + "'";
-
+					var fieldsList = new List<string>()
+					{
+						"RoomNumber",
+						"Lock",
+						"AccessLevel",
+						"Sensor",
+						"Date",
+						"Time",
+						"WarningLevel"
+					};
                     var where = new AssociativeData()
                     {
                         {"Date", string.Format("{0:yyyy-MM-dd}", date) }
                     };
 
-                    var reader = Select("events", where);
+                    var reader = SelectMany("events", fieldsList, where);
                     while (reader.Read())
                     {
-                        var dateParser = (DateTime)reader[5];
-                        var timeParser = (TimeSpan)reader[6];
+                        var dateParser = (DateTime)reader[4];
+                        var timeParser = (TimeSpan)reader[5];
                         var dateTime = new DateTime(
                             dateParser.Year,
                             dateParser.Month,
@@ -127,12 +140,12 @@ namespace VisualInspector.Infrastructure.DataBasePart
 
                         var newEvent = new Event()
                         {
-                            Room = (int)reader[1],
-                            Lock = (int)reader[2],
-                            AccessLevel = (int)reader[3],
-                            Sensor = (int)reader[4],
+                            Room = (int)reader[0],
+                            Lock = (int)reader[1],
+                            AccessLevel = (int)reader[2],
+                            Sensor = (int)reader[3],
                             DateTime = dateTime,
-                            WarningLevel = (WarningLevels)reader[7]
+                            WarningLevel = (WarningLevels)reader[6]
                         };
                         result.Add(newEvent);
                     }
@@ -189,63 +202,70 @@ namespace VisualInspector.Infrastructure.DataBasePart
         /// <summary>
         /// Select all fields from table
         /// </summary>
-        private MySqlDataReader Select(string table)
+        private MySqlDataReader SelectAll(string table)
         {
             var sql = string.Format("SELECT * FROM {0}", table);
             var cmd = new MySqlCommand(sql, connection);
             return cmd.ExecuteReader();
         }
+
+		/// <summary>
+		/// Select all fields by where-data
+		/// </summary>
+		private MySqlDataReader SelectAll(string table, AssociativeData where)
+		{
+			var whereString = "";
+			foreach(var pair in where)
+			{
+				whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
+			}
+			var sql = string.Format("SELECT * FROM {0} WHERE {1}", table, whereString);
+			var cmd = new MySqlCommand(sql, connection);
+			return cmd.ExecuteReader();
+		}
         /// <summary>
         /// Select all sorted fields from table 
         /// </summary>
-        private MySqlDataReader SelectBy(string table, string orderBy)
+        private MySqlDataReader SelectAll(string table, string orderBy)
         {
             var sql = string.Format("SELECT * FROM {0} ORDER BY {1}", table, orderBy);
             var cmd = new MySqlCommand(sql, connection);
             return cmd.ExecuteReader();
         }
+		/// <summary>
+		/// Select all sorted fields by where-data 
+		/// </summary>
+		private MySqlDataReader SelectAll(string table, AssociativeData where, string orderBy)
+		{
+			var whereString = "";
+			foreach(var pair in where)
+			{
+				whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
+			}
+			var sql = string.Format("SELECT * FROM {0} WHERE {1} ORDER BY {2}", table, whereString, orderBy);
+			var cmd = new MySqlCommand(sql, connection);
+			return cmd.ExecuteReader();
+		}
+
         /// <summary>
         /// Select field from table
         /// </summary>
-        private MySqlDataReader Select(string table, string field)
+		private List<T> SelectOne<T>(string table, string field)
         {
             var sql = string.Format("SELECT {0} FROM {1}", field, table);
-            var cmd = new MySqlCommand(sql, connection);
-            return cmd.ExecuteReader();
-        }
-
-        /// <summary>
-        /// Select all fields by where-data
-        /// </summary>
-        private MySqlDataReader Select(string table, AssociativeData where)
-        {
-            var whereString = "";
-            foreach (var pair in where)
-            {
-                whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
-            }
-            var sql = string.Format("SELECT * FROM {0} WHERE {1}", table, whereString);
-            var cmd = new MySqlCommand(sql, connection);
-            return cmd.ExecuteReader();
-        }
-        /// <summary>
-        /// Select all sorted fields by where-data 
-        /// </summary>
-        private MySqlDataReader SelectBy(string table, AssociativeData where, string orderBy)
-        {
-            var whereString = "";
-            foreach (var pair in where)
-            {
-                whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
-            }
-            var sql = string.Format("SELECT * FROM {0} WHERE {1} ORDER BY {2}", table, whereString, orderBy);
-            var cmd = new MySqlCommand(sql, connection);
-            return cmd.ExecuteReader();
+			var cmd = new MySqlCommand(sql, connection);
+			var reader = cmd.ExecuteReader();
+			var result = new List<T>();
+			while(reader.Read())
+			{
+				result.Add((T)reader[0]);
+			}
+			return result;
         }
         /// <summary>
         /// Select field by where-data
         /// </summary>
-        private MySqlDataReader Select(string table, string field, AssociativeData where)
+        private List<T> SelectOne<T>(string table, string field, AssociativeData where)
         {
             var whereString = "";
             foreach (var pair in where)
@@ -254,8 +274,54 @@ namespace VisualInspector.Infrastructure.DataBasePart
             }
             var sql = string.Format("SELECT {0} FROM {1} WHERE {2}", field, table, whereString);
             var cmd = new MySqlCommand(sql, connection);
-            return cmd.ExecuteReader();
+			var reader = cmd.ExecuteReader();
+			var result = new List<T>();
+			while(reader.Read())
+			{
+				result.Add((T)reader[0]);
+			}
+            return result;
         }
+
+		/// <summary>
+		/// Select all exact fields from table
+		/// </summary>
+		private MySqlDataReader SelectMany(string table, List<string> fields)
+		{
+			var sql = string.Format("SELECT `{0}` FROM {1}", string.Join("`, `", fields), table);
+			var cmd = new MySqlCommand(sql, connection);
+			return cmd.ExecuteReader();
+		}
+
+		/// <summary>
+		/// Select all exact fields from table by where-data
+		/// </summary>
+		private MySqlDataReader SelectMany(string table, List<string> fields, AssociativeData where)
+		{
+			var whereString = "";
+			foreach(var pair in where)
+			{
+				whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
+			}
+			var sql = string.Format("SELECT `{0}` FROM {1} WHERE {2}", string.Join("`, `", fields), table, whereString);
+			var cmd = new MySqlCommand(sql, connection);
+			return cmd.ExecuteReader();
+		}
+
+		/// <summary>
+		/// Select all exact sorted fields from table by where-data
+		/// </summary>
+		private MySqlDataReader SelectMany(string table, List<string> fields, AssociativeData where, string orderBy)
+		{
+			var whereString = "";
+			foreach(var pair in where)
+			{
+				whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
+			}
+			var sql = string.Format("SELECT `{0}` FROM {1} WHERE {2} ORDER BY {3}", string.Join("`, `", fields), table, whereString, orderBy);
+			var cmd = new MySqlCommand(sql, connection);
+			return cmd.ExecuteReader();
+		}
         #endregion
     }
 }

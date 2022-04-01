@@ -69,7 +69,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Infrastructure\DataBasePart\AssociativeData.cs" />
     <Compile Include="Infrastructure\DataBasePart\DataBaseConnector.cs" />
     <Compile Include="Infrastructure\Converters\Converters.cs" />
     <Compile Include="ViewModels\EventViewModel.cs" />
