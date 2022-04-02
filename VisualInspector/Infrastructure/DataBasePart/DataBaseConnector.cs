@@ -98,17 +98,22 @@ namespace VisualInspector.Infrastructure.DataBasePart
 
         public List<Event> ReadEventsByDate(DateTime date)
         {
-            if (connection.State != System.Data.ConnectionState.Open)
-            {
-                logger.Warn("Tried to read events from {0} connection", connection.State);
-                return null;
-            }
-            if (ShouldRead)
-            {
-                var result = new List<Event>();
+			return ReadEventsByDate(date, date);
+        }
 
-                try
-                {
+        public List<Event> ReadEventsByDate(DateTime dateBegin, DateTime dateEnd)
+		{
+			if(connection.State != System.Data.ConnectionState.Open)
+			{
+				logger.Warn("Tried to read events from {0} connection", connection.State);
+				return null;
+			}
+			if(ShouldRead)
+			{
+				var result = new List<Event>();
+
+				try
+				{
 					var fieldsList = new List<string>()
 					{
 						"RoomNumber",
@@ -119,74 +124,94 @@ namespace VisualInspector.Infrastructure.DataBasePart
 						"Time",
 						"WarningLevel"
 					};
-                    var where = new AssociativeData()
+					var listOfDates = new List<object>();
+
+					if(dateBegin.Date == dateEnd.Date)
+					{
+						listOfDates.Add(string.Format("{0:yyyy-MM-dd}", dateBegin));
+					}
+					else
+					{
+						var dateSpan = dateEnd.AddDays(1) - dateBegin;
+
+						for(int i = 0; i < dateSpan.Days; i++)
+						{
+							listOfDates.Add(string.Format("{0:yyyy-MM-dd}", dateBegin.AddDays(i)));
+						}
+					}
+					var where = new AssociativeData()
                     {
-                        {"Date", string.Format("{0:yyyy-MM-dd}", date) }
+                        {"Date", listOfDates}
                     };
 
-                    var reader = SelectMany("events", fieldsList, where);
-                    while (reader.Read())
-                    {
-                        var dateParser = (DateTime)reader[4];
-                        var timeParser = (TimeSpan)reader[5];
-                        var dateTime = new DateTime(
-                            dateParser.Year,
-                            dateParser.Month,
-                            dateParser.Day,
-                            timeParser.Hours,
-                            timeParser.Minutes,
-                            timeParser.Seconds
-                        );
+					var reader = SelectMany("events", fieldsList, where);
+					while(reader.Read())
+					{
+						var dateParser = (DateTime)reader[4];
+						var timeParser = (TimeSpan)reader[5];
+						var dateTime = new DateTime(
+							dateParser.Year,
+							dateParser.Month,
+							dateParser.Day,
+							timeParser.Hours,
+							timeParser.Minutes,
+							timeParser.Seconds
+						);
 
-                        var newEvent = new Event()
-                        {
-                            Room = (int)reader[0],
-                            Lock = (int)reader[1],
-                            AccessLevel = (int)reader[2],
-                            Sensor = (int)reader[3],
-                            DateTime = dateTime,
-                            WarningLevel = (WarningLevels)reader[6]
-                        };
-                        result.Add(newEvent);
-                    }
-                    reader.Close();
-                }
-                catch (MySqlException e)
-                {
-                    logger.Error("An error occured, while reading events from database: {0}", e.Message);
-                    return null;
-                }
-                return result;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public List<Event> ReadEventsByDate(DateTime dateBegin, DateTime dateEnd)
-        {
-            if (dateBegin.Date == dateEnd.Date)
-            {
-                return ReadEventsByDate(dateBegin);
-            }
-
-            var dateSpan = dateEnd.AddDays(1) - dateBegin;
-            var result = new List<Event>();
-
-            for (int i = 0; i < dateSpan.Days; i++)
-            {
-                var oneDayEvents = ReadEventsByDate(dateBegin.AddDays(i));
-                if (oneDayEvents != null)
-                {
-                    result.AddRange(oneDayEvents);
-                }
-            }
-
-            return result;
+						var newEvent = new Event()
+						{
+							Room = (int)reader[0],
+							Lock = (int)reader[1],
+							AccessLevel = (int)reader[2],
+							Sensor = (int)reader[3],
+							DateTime = dateTime,
+							WarningLevel = (WarningLevels)reader[6]
+						};
+						result.Add(newEvent);
+					}
+					reader.Close();
+				}
+				catch(MySqlException e)
+				{
+					logger.Error("An error occured, while reading events from database: {0}", e.Message);
+					return null;
+				}
+				return result;
+			}
+			else
+			{
+				return null;
+			}
         }
 
         #region SqlCommands
+
+		/// <summary>
+		/// Parsing data for where condition. Not very comprehensive, for unusual queries should write where condition manually
+		/// </summary>
+		private string parseWhereData(AssociativeData data)
+		{
+			var whereString = "";
+			var firstTime = true;
+			foreach(var pair in data)
+			{
+				if(!firstTime)
+				{
+					whereString += " AND ";
+				}
+				firstTime = false;
+				whereString += string.Format("{0} IN ('", pair.Key);
+				var tryConvert = pair.Value as List<object>;
+				if(tryConvert == null)
+				{
+					tryConvert = new List<object>();
+					tryConvert.Add(pair.Value.ToString());
+				}
+				whereString += string.Join("', '", tryConvert);
+				whereString += "')";
+			}
+			return whereString;
+		}
 
         /// <summary>
         /// Insert data in table
@@ -205,6 +230,7 @@ namespace VisualInspector.Infrastructure.DataBasePart
         private MySqlDataReader SelectAll(string table)
         {
             var sql = string.Format("SELECT * FROM {0}", table);
+
             var cmd = new MySqlCommand(sql, connection);
             return cmd.ExecuteReader();
         }
@@ -214,12 +240,9 @@ namespace VisualInspector.Infrastructure.DataBasePart
 		/// </summary>
 		private MySqlDataReader SelectAll(string table, AssociativeData where)
 		{
-			var whereString = "";
-			foreach(var pair in where)
-			{
-				whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
-			}
+			var whereString = parseWhereData(where);
 			var sql = string.Format("SELECT * FROM {0} WHERE {1}", table, whereString);
+
 			var cmd = new MySqlCommand(sql, connection);
 			return cmd.ExecuteReader();
 		}
@@ -229,6 +252,7 @@ namespace VisualInspector.Infrastructure.DataBasePart
         private MySqlDataReader SelectAll(string table, string orderBy)
         {
             var sql = string.Format("SELECT * FROM {0} ORDER BY {1}", table, orderBy);
+
             var cmd = new MySqlCommand(sql, connection);
             return cmd.ExecuteReader();
         }
@@ -237,12 +261,9 @@ namespace VisualInspector.Infrastructure.DataBasePart
 		/// </summary>
 		private MySqlDataReader SelectAll(string table, AssociativeData where, string orderBy)
 		{
-			var whereString = "";
-			foreach(var pair in where)
-			{
-				whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
-			}
+			var whereString = parseWhereData(where);
 			var sql = string.Format("SELECT * FROM {0} WHERE {1} ORDER BY {2}", table, whereString, orderBy);
+
 			var cmd = new MySqlCommand(sql, connection);
 			return cmd.ExecuteReader();
 		}
@@ -267,11 +288,7 @@ namespace VisualInspector.Infrastructure.DataBasePart
         /// </summary>
         private List<T> SelectOne<T>(string table, string field, AssociativeData where)
         {
-            var whereString = "";
-            foreach (var pair in where)
-            {
-                whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
-            }
+            var whereString = parseWhereData(where);
             var sql = string.Format("SELECT {0} FROM {1} WHERE {2}", field, table, whereString);
             var cmd = new MySqlCommand(sql, connection);
 			var reader = cmd.ExecuteReader();
@@ -289,6 +306,7 @@ namespace VisualInspector.Infrastructure.DataBasePart
 		private MySqlDataReader SelectMany(string table, List<string> fields)
 		{
 			var sql = string.Format("SELECT `{0}` FROM {1}", string.Join("`, `", fields), table);
+
 			var cmd = new MySqlCommand(sql, connection);
 			return cmd.ExecuteReader();
 		}
@@ -298,12 +316,9 @@ namespace VisualInspector.Infrastructure.DataBasePart
 		/// </summary>
 		private MySqlDataReader SelectMany(string table, List<string> fields, AssociativeData where)
 		{
-			var whereString = "";
-			foreach(var pair in where)
-			{
-				whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
-			}
+			var whereString = parseWhereData(where);
 			var sql = string.Format("SELECT `{0}` FROM {1} WHERE {2}", string.Join("`, `", fields), table, whereString);
+
 			var cmd = new MySqlCommand(sql, connection);
 			return cmd.ExecuteReader();
 		}
@@ -313,12 +328,9 @@ namespace VisualInspector.Infrastructure.DataBasePart
 		/// </summary>
 		private MySqlDataReader SelectMany(string table, List<string> fields, AssociativeData where, string orderBy)
 		{
-			var whereString = "";
-			foreach(var pair in where)
-			{
-				whereString += string.Format("{0} = '{1}'", pair.Key, pair.Value);
-			}
+			var whereString = parseWhereData(where);
 			var sql = string.Format("SELECT `{0}` FROM {1} WHERE {2} ORDER BY {3}", string.Join("`, `", fields), table, whereString, orderBy);
+
 			var cmd = new MySqlCommand(sql, connection);
 			return cmd.ExecuteReader();
 		}
