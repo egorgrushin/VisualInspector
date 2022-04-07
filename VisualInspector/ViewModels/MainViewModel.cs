@@ -38,7 +38,7 @@ namespace VisualInspector.ViewModels
 		Random rd;
 		private IVisualFactory<EventViewModel> visualFactory;
 		private TcpServer server;
-		private DataBaseConnector dataBaseConnection;
+        private EventsDataBaseConnector dataBaseConnection;
 		private bool selectionLock;
 		private RelayCommand showVideoCommand;
 		//Worker that was started by previous selection. Should be canceled to avoid massive SelectedFrameList assignment calls
@@ -100,7 +100,7 @@ namespace VisualInspector.ViewModels
 			set	
 			{ 
 				Set(() => SelectedDateBegin, value); 
-				ReloadEventsByDate();
+				    ReloadEventsByDate();
 			}
 		}
 		public DateTime SelectedDateEnd
@@ -108,8 +108,8 @@ namespace VisualInspector.ViewModels
 			get	{ return Get(() => SelectedDateEnd); }
 			set	
 			{
-				Set(() => SelectedDateEnd, value);
-				ReloadEventsByDate(); 
+                Set(() => SelectedDateEnd, value);
+				    ReloadEventsByDate(); 
 			}
 		}
 
@@ -128,7 +128,7 @@ namespace VisualInspector.ViewModels
             };
 			visualFactory = new EventVisualFactory(pens, brushes);
 
-			dataBaseConnection = new DataBaseConnector()
+            dataBaseConnection = new EventsDataBaseConnector()
 			{
 				ShouldRead = true,
 				ShouldWrite = false
@@ -153,13 +153,13 @@ namespace VisualInspector.ViewModels
 		/// </summary>
 		private void AddEventToVisualHost(Event eventToAdd)
 		{
-			if(eventToAdd.DateTime.Date <= SelectedDateEnd && eventToAdd.DateTime >= SelectedDateBegin)
+            if (SelectedDateBegin.Date <= eventToAdd.DateTime.Date && eventToAdd.DateTime.Date <= SelectedDateEnd.Date)
 			{
 				Rooms[eventToAdd.Room].Events.Add(new EventViewModel(eventToAdd, visualFactory));
 			}
 		}
 		/// <summary>
-		/// Adding event to the application, saving all data to database. Should be used for new events from clients
+		/// Adding event to the application, saving all dat a to database. Should be used for new events from clients
 		/// </summary>
 		private void AddEventToApp(Event eventToAdd)
 		{

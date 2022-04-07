@@ -36,9 +36,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AForge.Video, Version=2.2.5.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\AForge.Video.dll</HintPath>
+    <Reference Include="AForge.Video">
+      <HintPath>bin\Debug\AForge.Video.dll</HintPath>
     </Reference>
     <Reference Include="AForge.Video.FFMPEG, Version=2.2.5.0, Culture=neutral, PublicKeyToken=03563089b1be05dd, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -71,6 +70,7 @@
     </ApplicationDefinition>
     <Compile Include="Infrastructure\DataBasePart\DataBaseConnector.cs" />
     <Compile Include="Infrastructure\Converters\Converters.cs" />
+    <Compile Include="Infrastructure\DataBasePart\EventsDataBaseConnector.cs" />
     <Compile Include="ViewModels\EventViewModel.cs" />
     <Compile Include="Infrastructure\EventVisualFactory.cs" />
     <Compile Include="Infrastructure\EventVisualHost.cs" />
@@ -121,6 +121,7 @@
     <None Include="app.config" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>

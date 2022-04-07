@@ -123,7 +123,7 @@ namespace VisualInspector.Models
 
 		public override string ToString()
 		{
-			return string.Format("Warning: {0}\r\nLock: {1}\r\nSensor: {2}\r\nAccess: {3}\r\nRoom: {4}\r\nDateTime: {5}",
+			return string.Format("Warning: {0}\r\nLock: {1}\r\n Sensor: {2}\r\nAccess: {3}\r\nRoom: {4}\r\nDateTime: {5:dd.MM.yyyy hh:mm tt}",
 				WarningLevel,
 				Lock,
 				Enum.GetName(typeof(Sensors), Sensor),
