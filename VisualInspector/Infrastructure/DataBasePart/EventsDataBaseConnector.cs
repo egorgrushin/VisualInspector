@@ -29,7 +29,7 @@ namespace VisualInspector.Infrastructure.DataBasePart
                 try
                 {
                     var roomNum = eventToSave.Room;
-                    var lockNum = eventToSave.Lock;
+                    var lockNum = eventToSave.LockID;
                     var accessLevel = eventToSave.AccessLevel;
                     var sensor = eventToSave.AccessLevel;
                     var dateTime = eventToSave.DateTime;
@@ -113,7 +113,7 @@ namespace VisualInspector.Infrastructure.DataBasePart
                         var newEvent = new Event()
                         {
                             Room = (int)reader[0],
-                            Lock = (int)reader[1],
+                            LockID = (string)reader[1],
                             AccessLevel = (int)reader[2],
                             Sensor = (int)reader[3],
                             DateTime = dateTime,

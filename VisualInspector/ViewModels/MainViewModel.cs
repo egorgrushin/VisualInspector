@@ -220,13 +220,13 @@ namespace VisualInspector.ViewModels
 		private Event Proceed(string msg)
 		{
 			var data = msg.Split('/');
-			var lockNumber = int.Parse(data[1]);
+			var lockId = data[1];
 			var sensorNumber = int.Parse(data[2]);
 			var accessLevel = int.Parse(data[3]);
 			var roomNumber = int.Parse(data[4]);
 			var newEvent = new Event()
 			{
-				Lock = lockNumber,
+                LockID = lockId,
 				Sensor = sensorNumber,
 				AccessLevel = accessLevel,
 				Room = roomNumber,
@@ -299,13 +299,13 @@ namespace VisualInspector.ViewModels
 
 		private string GenerateRandomMsg()
 		{
-			var lockNumber = rd.Next(Rooms.Count);
 			var sensorNumber = (int)Enum.GetValues(typeof(Sensors)).GetValue(rd.Next(Enum.GetValues(typeof(Sensors)).GetLength(0)));
 			var accessLevel = 
                 sensorNumber != 1 ? (int)Enum.GetValues(typeof(AccessLevels)).GetValue(rd.Next(Enum.GetValues(typeof(AccessLevels)).GetLength(0))) : 0;
-			var cardNumber = rd.Next(Rooms.Count);
+            var cardNumber = rd.Next(Rooms.Count);
+            var lockId = new string('0', 5) + (cardNumber + 1).ToString();
 			return string.Format(@"msg/{0}/{1}/{2}/{3}/end",
-				lockNumber, sensorNumber, accessLevel, cardNumber);
+				lockId, sensorNumber, accessLevel, cardNumber);
 		}
 
 

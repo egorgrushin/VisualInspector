@@ -31,7 +31,7 @@ namespace VisualInspector.Models
         #region Properties
         public Guid Id { get; set; }
         public WarningLevels WarningLevel { get; set; }
-        public int Lock { get; set; }
+        public string LockID { get; set; }
         public int Sensor { get; set; }
         public int Room { get; set; }
         public DateTime DateTime { get; set; }
@@ -123,9 +123,9 @@ namespace VisualInspector.Models
 
 		public override string ToString()
 		{
-			return string.Format("Warning: {0}\r\nLock: {1}\r\n Sensor: {2}\r\nAccess: {3}\r\nRoom: {4}\r\nDateTime: {5:dd.MM.yyyy hh:mm tt}",
+			return string.Format("Warning: {0}\r\nLock: {1}\r\nSensor: {2}\r\nAccess: {3}\r\nRoom: {4}\r\nDateTime: {5:dd.MM.yyyy hh:mm tt}",
 				WarningLevel,
-				Lock,
+                LockID,
 				Enum.GetName(typeof(Sensors), Sensor),
 				Enum.GetName(typeof(AccessLevels), AccessLevel),
 				Room + 1,
