@@ -126,19 +126,13 @@ namespace VisualInspector.Infrastructure.DataBasePart
 					};
 					var listOfDates = new List<object>();
 
-					if(dateBegin.Date == dateEnd.Date)
-					{
-						listOfDates.Add(string.Format("{0:yyyy-MM-dd}", dateBegin));
-					}
-					else
-					{
-						var dateSpan = dateEnd.AddDays(1) - dateBegin;
+					var dateSpan = dateEnd.AddDays(1) - dateBegin;
 
-						for(int i = 0; i < dateSpan.Days; i++)
-						{
-							listOfDates.Add(string.Format("{0:yyyy-MM-dd}", dateBegin.AddDays(i)));
-						}
+					for(int i = 0; i < dateSpan.Days; i++)
+					{
+						listOfDates.Add(string.Format("{0:yyyy-MM-dd}", dateBegin.AddDays(i)));
 					}
+
 					var where = new AssociativeData()
                     {
                         {"Date", listOfDates}
