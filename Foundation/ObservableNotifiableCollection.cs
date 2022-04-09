@@ -8,9 +8,9 @@ using System.Text;
 
 namespace Foundation
 {
-    public class ObservableNotifiableCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
+	public class ObservableNotifiableCollection<T> : TreadSafeObservableCollection<T> where T : INotifyPropertyChanged
     {
-        public event ItemPropertyChangedEventHandler ItemPropertyChanged;
+		public event EventHandler<ItemPropertyChangedEventArgs> ItemPropertyChanged;
         public event EventHandler CollectionCleared;
 
         protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs args)
