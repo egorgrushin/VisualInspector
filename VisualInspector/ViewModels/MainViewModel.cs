@@ -32,7 +32,7 @@ namespace VisualInspector.ViewModels
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private static readonly int RoomsNumber = 30;
+		private static readonly int RoomsNumber = 100;
 
 		#region Properties & fields
 		Random rd;

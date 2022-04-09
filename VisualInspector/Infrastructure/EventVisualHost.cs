@@ -33,7 +33,7 @@ namespace VisualInspector.Infrastructure
 		{
 			Width = 1000;
 			ClipToBounds = true;
-			Height = EventVisualFactory.VisualSize + GapWidth;
+			Height = EventVisualFactory.VisualSize;
 			MouseLeftButtonDown += EventVisualHost_MouseLeftButtonDown;
 		}
 		private void Initialize()
