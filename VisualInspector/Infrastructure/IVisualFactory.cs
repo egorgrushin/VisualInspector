@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 namespace VisualInspector.Infrastructure
 {
-    public interface IVisualFactory<T> where T : ViewModel
+    public interface IVisualFactory<T> where T : ViewModelBase
     {
 		/// <summary>
 		/// Drawing on visual from event info

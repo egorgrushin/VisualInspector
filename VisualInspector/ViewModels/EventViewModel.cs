@@ -15,7 +15,7 @@ using System.ComponentModel;
 
 namespace VisualInspector.ViewModels
 {
-    public class EventViewModel : ViewModel
+    public class EventViewModel : ViewModelBase
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 

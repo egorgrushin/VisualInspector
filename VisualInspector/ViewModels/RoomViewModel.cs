@@ -9,7 +9,7 @@ using NLog;
 
 namespace VisualInspector.ViewModels
 {
-    public class RoomViewModel : ViewModel
+    public class RoomViewModel : ViewModelBase
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 

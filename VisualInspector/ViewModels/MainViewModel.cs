@@ -28,7 +28,7 @@ namespace VisualInspector.ViewModels
 		Administator
 	}
 
-	public class MainViewModel : ViewModel
+	public class MainViewModel : ViewModelBase
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -284,7 +284,7 @@ namespace VisualInspector.ViewModels
 			var context = state as SynchronizationContext;
 			while(true)
 			{
-				var randomSleep = rd.Next(1, 30);
+				var randomSleep = rd.Next(1, 20);
 				var newMsg = GenerateRandomMsg();
 				var newEvent = Proceed(newMsg);
 				newEvent.ParseWarningLevel(rd.Next(201));

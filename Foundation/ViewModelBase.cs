@@ -7,15 +7,9 @@ using System.Text;
 
 namespace Foundation
 {
-    public class ViewModelBase : PropertyNameProvider, INotifyPropertyChanged, INotifyPropertyChanging
+    public class ViewModelBase : PropertyChangeNotification
     {
-        protected Dictionary<string, object> propertyValueMap = new Dictionary<string, object>();
         private const string IndexerName = System.Windows.Data.Binding.IndexerName; /* "Item[]" */
-
-        public event PropertyChangingEventHandler PropertyChanging = (sender, args) => { };
-
-        public event PropertyChangedEventHandler PropertyChanged = (sender, args) => { };
-
 
         public object this[string key]
         {
@@ -41,16 +35,7 @@ namespace Foundation
         }
 
 
-        protected void RaisePropertyChanging(string propertyName)
-        {
-            var handler = PropertyChanging;
-            handler(this, new PropertyChangingEventArgs(propertyName));
-        }
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            var handler = PropertyChanged;
-            handler(this, new PropertyChangedEventArgs(propertyName));
-        }
+       
 
 
     }

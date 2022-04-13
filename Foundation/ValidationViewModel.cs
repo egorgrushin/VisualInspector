@@ -10,7 +10,7 @@ using System.Windows.Input;
 
 namespace Foundation
 {
-    public class ValidationViewModel : ViewModel, IDataErrorInfo
+    public class ValidationViewModel : ViewModelBase, IDataErrorInfo
     {
         private Dictionary<string, Binder> ruleMap = new Dictionary<string, Binder>();
 
