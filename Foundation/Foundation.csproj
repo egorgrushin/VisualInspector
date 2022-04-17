@@ -47,7 +47,6 @@
   <ItemGroup>
     <Compile Include="Binder.cs" />
     <Compile Include="ConverterBase.cs" />
-    <Compile Include="CrossthreadObservableCollection.cs" />
     <Compile Include="ItemPropertyChangedEventArgs.cs" />
     <Compile Include="MultiParameter.cs" />
     <Compile Include="ObservableNotifiableCollection.cs" />
@@ -55,6 +54,7 @@
     <Compile Include="PropertyChangeNotification.cs" />
     <Compile Include="PropertyNameProvider.cs" />
     <Compile Include="RelayCommand.cs" />
+    <Compile Include="TreadSafeObservableCollection.cs" />
     <Compile Include="ValidationViewModel.cs" />
     <Compile Include="ViewModelBase.cs" />
   </ItemGroup>

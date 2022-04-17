@@ -7,10 +7,11 @@
         <SolidColorBrush Color="#FFffffbb" x:Key="forNormalBrush"/>
         <SolidColorBrush Color="#FFffdd88" x:Key="forMiddleBrush"/>
         <SolidColorBrush Color="#FFff0000" x:Key="forHighBrush"/>
-        <SolidColorBrush Color="#FFff0000" x:Key="TrackBrush"/>
-        <SolidColorBrush x:Key="ToggleButtonBorderBrush" Color="#FF000000" Opacity="0.5"/>
+		<SolidColorBrush Color="#FFff0000" x:Key="TrackBrush"/>
+		<!--<SolidColorBrush x:Key="ToggleButtonBorderBrush" Color="#FF000000" Opacity="0.5"/>-->
+		<SolidColorBrush x:Key="ToggleButtonBorderBrush" Color="Black"/>
 
-        <!-- Brushes used in Styling of ScrollViewer -->
+		<!-- Brushes used in Styling of ScrollViewer -->
         <SolidColorBrush x:Key="StandardBorderBrush" Color="#888" />
         <SolidColorBrush x:Key="StandardBackgroundBrush" Color="#FFF" />
         <SolidColorBrush x:Key="HoverBorderBrush" Color="#DDD" />
@@ -266,72 +267,50 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton" x:Name="Template">
-                        <Grid>
-                            <Border x:Name="InnerBorder"
+					<ControlTemplate TargetType="ToggleButton" x:Name="Template">
+						<Grid>
+							<Border x:Name="InnerBorder"
                                     Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}">
-                                <Grid>
-                                    <Border x:Name="StrokeBorder" BorderThickness="0" BorderBrush="{StaticResource ToggleButtonBorderBrush}"/>
-                                    <ContentPresenter x:Name="Content" HorizontalAlignment="Center"
+								<Grid>
+									<Border x:Name="StrokeBorder" BorderThickness="5" BorderBrush="{StaticResource ToggleButtonBorderBrush}"/>
+									<Canvas >
+										<Line
+											X1="0" Y1="10"
+											X2="100" Y2="10"
+											Stroke="Black"
+											StrokeThickness="2" />
+									</Canvas>
+									<ContentPresenter x:Name="Content" HorizontalAlignment="Center"
                                                           VerticalAlignment="Center"/>
-                                </Grid>
-                            </Border>
-
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal" />
-                                    <VisualState x:Name="Checked">
-                                        <Storyboard>
-                                            <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="StrokeBorder"
-                                                                           Storyboard.TargetProperty="BorderThickness">
-                                                <DiscreteThicknessKeyFrame KeyTime="0" Value="1"/>
-                                            </ThicknessAnimationUsingKeyFrames>
-
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="StrokeBorder"
-                                                                           Storyboard.TargetProperty="Effect">
-                                                <DiscreteObjectKeyFrame KeyTime="0">
-                                                    <DiscreteObjectKeyFrame.Value>
-                                                        <DropShadowEffect Color="#FF000000" Direction="-90" ShadowDepth="0" Opacity="0.75" />
-                                                    </DiscreteObjectKeyFrame.Value>
-                                                </DiscreteObjectKeyFrame>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                        </Grid>
-                    </ControlTemplate>
+								</Grid>
+							</Border>
+						</Grid>
+					</ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ToggleButton">
-                                <Border
-                                        x:Name="Border"
-                                        Background="{TemplateBinding Background}"
-                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                        BorderThickness="{TemplateBinding BorderThickness}">
-                                    <Border.Effect>
-                                        <DropShadowEffect Color="#FF554422" Direction="-90" ShadowDepth="1" Opacity="0.75"/>
-                                    </Border.Effect>
-                                    <Grid>
-                                        <Border BorderThickness="1" BorderBrush="{StaticResource ToggleButtonBorderBrush}">
-                                            <Border.Effect>
-                                                <DropShadowEffect Color="#FF000000" Direction="-90" ShadowDepth="0" Opacity="0.75" />
-                                            </Border.Effect>
-                                        </Border>
-                                        <ContentPresenter x:Name="Content" HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                                    </Grid>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
+			<Style.Triggers>
+				<Trigger Property="IsChecked" Value="True">
+					<Setter Property="Template">
+						<Setter.Value>
+							<ControlTemplate TargetType="ToggleButton">
+								<Grid>
+									<Border x:Name="InnerBorder"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}">
+										<Grid>
+											<Border x:Name="StrokeBorder" BorderThickness="2" BorderBrush="{StaticResource ToggleButtonBorderBrush}"/>
+											<ContentPresenter x:Name="Content" HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+										</Grid>
+									</Border>
+								</Grid>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+				</Trigger>
             </Style.Triggers>
         </Style>
 

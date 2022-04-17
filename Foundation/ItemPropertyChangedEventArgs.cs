@@ -6,9 +6,6 @@ using System.Text;
 
 namespace Foundation
 {
-    public delegate void ItemPropertyChangedEventHandler(object sender,
-     ItemPropertyChangedEventArgs args);
-
     public class ItemPropertyChangedEventArgs : PropertyChangedEventArgs
     {
         private object item;
