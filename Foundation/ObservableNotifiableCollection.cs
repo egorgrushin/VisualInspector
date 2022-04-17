@@ -10,6 +10,18 @@ namespace Foundation
 {
 	public class ObservableNotifiableCollection<T> : TreadSafeObservableCollection<T> where T : INotifyPropertyChanged
     {
+		public ObservableNotifiableCollection()
+			: base()
+		{
+		}
+		public ObservableNotifiableCollection(IEnumerable<T> collection)
+			: base(collection)
+		{
+		}
+		public ObservableNotifiableCollection(List<T> list) 
+			: base(list)
+		{
+		}
 		public event EventHandler<ItemPropertyChangedEventArgs> ItemPropertyChanged;
         public event EventHandler CollectionCleared;
 

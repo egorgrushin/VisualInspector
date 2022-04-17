@@ -10,6 +10,18 @@ namespace Foundation
 {
 	public class TreadSafeObservableCollection<T> : ObservableCollection<T> 
 	{
+		public TreadSafeObservableCollection()
+			: base()
+		{
+		}
+		public TreadSafeObservableCollection(IEnumerable<T> collection)
+			: base(collection)
+		{
+		}
+		public TreadSafeObservableCollection(List<T> list) 
+			: base(list)
+		{
+		}
 		public override event NotifyCollectionChangedEventHandler CollectionChanged;
 		protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
 		{
